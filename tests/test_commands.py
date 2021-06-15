@@ -3,15 +3,10 @@ from tempfile import TemporaryDirectory
 
 import pystac
 
-from tests.utils import CliTestCase, TestData
-from stactools.goes.commands import create_goes_command
+from stactools.testing import CliTestCase
 
-EXTERNAL_DATA_PATH = (
-    "goes/OR_ABI-L2-CMIPM1-M6C02_G16_s20211231619248_e20211231619306_c20211231619382.nc"
-)
-MULTIBAND_EXTERNAL_DATA_PATH = (
-    "goes/OR_ABI-L2-MCMIPM1-M6_G16_s20211451800267_e20211451800324_c20211451800407.nc"
-)
+from stactools.goes.commands import create_goes_command
+from tests import test_data, CMIP_FILE_NAME, MCMIP_FILE_NAME
 
 
 class CreateItemTest(CliTestCase):
@@ -19,7 +14,7 @@ class CreateItemTest(CliTestCase):
         return [create_goes_command]
 
     def test_create_item(self):
-        path = TestData.get_external_data(EXTERNAL_DATA_PATH)
+        path = test_data.get_external_data(CMIP_FILE_NAME)
         with TemporaryDirectory() as tmp_dir:
             args = ["goes", "create-item", path, tmp_dir]
             result = self.run_command(args)
@@ -31,7 +26,7 @@ class CreateItemTest(CliTestCase):
         item.validate()
 
     def test_create_item_with_cogify(self):
-        path = TestData.get_external_data(EXTERNAL_DATA_PATH)
+        path = test_data.get_external_data(CMIP_FILE_NAME)
         with TemporaryDirectory() as tmp_dir:
             args = ["goes", "create-item", "--cogify", path, tmp_dir]
             result = self.run_command(args)
@@ -47,7 +42,7 @@ class CreateItemTest(CliTestCase):
         item.validate()
 
     def test_create_item_with_cogify_multiband(self):
-        path = TestData.get_external_data(MULTIBAND_EXTERNAL_DATA_PATH)
+        path = test_data.get_external_data(MCMIP_FILE_NAME)
         with TemporaryDirectory() as tmp_dir:
             args = ["goes", "create-item", "--cogify", path, tmp_dir]
             result = self.run_command(args)

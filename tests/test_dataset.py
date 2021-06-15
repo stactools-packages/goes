@@ -2,17 +2,15 @@ import os.path
 from tempfile import TemporaryDirectory
 import unittest
 
-from stactools.goes import Dataset
-from tests.utils import TestData, validate_cloud_optimized_geotiff
+from stactools.testing import validate_cloud_optimized_geotiff
 
-EXTERNAL_DATA_PATH = (
-    "goes/OR_ABI-L2-CMIPM1-M6C02_G16_s20211231619248_e20211231619306_c20211231619382.nc"
-)
+from stactools.goes import Dataset
+from tests import test_data, CMIP_FILE_NAME
 
 
 class DatasetTest(unittest.TestCase):
     def test_cogify(self):
-        path = TestData.get_external_data(EXTERNAL_DATA_PATH)
+        path = test_data.get_external_data(CMIP_FILE_NAME)
         dataset = Dataset(path)
         with TemporaryDirectory() as directory:
             cogs = dataset.cogify(directory)
@@ -43,12 +41,12 @@ class DatasetTest(unittest.TestCase):
             did_it = True
             return href
 
-        path = TestData.get_external_data(EXTERNAL_DATA_PATH)
+        path = test_data.get_external_data(CMIP_FILE_NAME)
         Dataset(path, read_href_modifier=modify_href)
         self.assertTrue(did_it)
 
     def test_cog_file_names(self):
-        path = TestData.get_external_data(EXTERNAL_DATA_PATH)
+        path = test_data.get_external_data(CMIP_FILE_NAME)
         dataset = Dataset(path)
         cog_file_names = dataset.cog_file_names()
         self.assertEqual(
