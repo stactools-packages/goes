@@ -7,16 +7,12 @@ from pystac import MediaType
 from pystac.extensions.projection import ProjectionExtension
 
 from stactools.goes import stac
-from tests.utils import TestData
-
-EXTERNAL_DATA_PATH = (
-    "goes/OR_ABI-L2-CMIPM1-M6C02_G16_s20211231619248_e20211231619306_c20211231619382.nc"
-)
+from tests import test_data, CMIP_FILE_NAME
 
 
 class CreateItemTest(unittest.TestCase):
     def test_create_item(self):
-        path = TestData.get_external_data(EXTERNAL_DATA_PATH)
+        path = test_data.get_external_data(CMIP_FILE_NAME)
         item = stac.create_item(path)
         self.assertEqual(
             item.id,
@@ -58,12 +54,12 @@ class CreateItemTest(unittest.TestCase):
             did_it = True
             return href
 
-        path = TestData.get_external_data(EXTERNAL_DATA_PATH)
+        path = test_data.get_external_data(CMIP_FILE_NAME)
         _ = stac.create_item(path, modify_href)
         self.assertTrue(did_it)
 
     def test_cog_directory(self):
-        path = TestData.get_external_data(EXTERNAL_DATA_PATH)
+        path = test_data.get_external_data(CMIP_FILE_NAME)
         with TemporaryDirectory() as tmp_dir:
             item = stac.create_item(path, cog_directory=tmp_dir)
             cog_asset = item.assets["CMI"]
@@ -76,8 +72,8 @@ class CreateItemTest(unittest.TestCase):
             self.assertEqual(cog_asset.media_type, MediaType.COG)
 
     def test_different_product(self):
-        path = TestData.get_path(
-            "data-files/goes/"
+        path = test_data.get_path(
+            "data-files/"
             "OR_ABI-L2-LSTM2-M6_G16_s20211381700538_e20211381700595_c20211381701211.nc"
         )
         item = stac.create_item(path)
