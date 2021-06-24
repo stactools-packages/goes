@@ -2,8 +2,6 @@ import os.path
 from tempfile import TemporaryDirectory
 import unittest
 
-from stactools.testing import validate_cloud_optimized_geotiff
-
 from stactools.goes import Dataset
 from tests import test_data, CMIP_FILE_NAME
 
@@ -19,19 +17,11 @@ class DatasetTest(unittest.TestCase):
             self.assertEqual(
                 os.path.basename(data_path),
                 os.path.splitext(os.path.basename(path))[0] + "_CMI.tif")
-            warnings, errors, _ = validate_cloud_optimized_geotiff.validate(
-                data_path, full_check=True)
-            self.assertEqual(len(warnings), 0)
-            self.assertEqual(len(errors), 0)
 
             dqf_path = cogs["DQF"]
             self.assertEqual(
                 os.path.basename(dqf_path),
                 os.path.splitext(os.path.basename(path))[0] + "_DQF.tif")
-            warnings, errors, _ = validate_cloud_optimized_geotiff.validate(
-                dqf_path, full_check=True)
-            self.assertEqual(len(warnings), 0)
-            self.assertEqual(len(errors), 0)
 
     def test_read_href_modifier(self):
         did_it = False
