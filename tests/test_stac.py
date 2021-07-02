@@ -6,7 +6,7 @@ import unittest
 from pystac import MediaType
 from pystac.extensions.projection import ProjectionExtension
 
-from stactools.goes import stac
+from stactools.goes import stac, __version__
 from tests import test_data, CMIP_FILE_NAME
 
 
@@ -26,6 +26,11 @@ class CreateItemTest(unittest.TestCase):
                          dateutil.parser.parse("2021-05-03T16:19:24.8Z"))
         self.assertEqual(item.common_metadata.end_datetime,
                          dateutil.parser.parse("2021-05-03T16:19:30.6Z"))
+        self.assertTrue(
+            "https://stac-extensions.github.io/processing/v1.0.0/schema.json"
+            in item.stac_extensions)
+        self.assertDictEqual(item.properties["processing:software"],
+                             {"stactools-goes": __version__})
 
         data = item.assets["data"]
         self.assertEqual(data.href, path)
