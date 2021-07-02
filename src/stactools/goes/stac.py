@@ -1,3 +1,4 @@
+import pkg_resources
 from typing import Optional, Dict
 
 from pystac import Item, Asset, MediaType
@@ -36,6 +37,11 @@ def create_item_from_dataset(dataset: Dataset,
                 properties={})
     item.common_metadata.start_datetime = dataset.start_datetime
     item.common_metadata.end_datetime = dataset.end_datetime
+    item.stac_extensions.append(
+        "https://stac-extensions.github.io/processing/v1.0.0/schema.json")
+    item.properties["processing:software"] = {
+        "stactools-goes": pkg_resources.require("stactools-goes")[0].version
+    }
 
     ProjectionExtension.add_to(item)
     projection = ProjectionExtension.ext(item)
