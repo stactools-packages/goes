@@ -49,6 +49,7 @@ class Dataset:
                 dataset.attrs["time_coverage_end"])
             self.title = dataset.attrs["title"].decode("utf-8")
             self.description = dataset.attrs["summary"].decode("utf-8")
+            self.platform_id = dataset.attrs["platform_ID"].decode("utf-8")
             projection = dataset["goes_imager_projection"]
             sweep_angle_axis = projection.attrs["sweep_angle_axis"].decode(
                 "utf-8")
@@ -71,6 +72,10 @@ class Dataset:
             y = dataset["y"][:].tolist()
             y_scale = dataset["y"].attrs["scale_factor"][0].item()
             y_offset = dataset["y"].attrs["add_offset"][0].item()
+
+        assert len(self.platform_id) > 1
+        assert self.platform_id.startswith("G")
+        self.satellite_number = int(self.platform_id[1:])
 
         # we let GRS80 and WGS84 be ~the same for these purposes, since we're
         # not looking for survey-level precision in these bounds

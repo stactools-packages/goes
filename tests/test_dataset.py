@@ -45,3 +45,8 @@ class DatasetTest(unittest.TestCase):
                 "OR_ABI-L2-CMIPM1-M6C02_G16_s20211231619248_e20211231619306_c20211231619382_CMI.tif",  # noqa
                 "OR_ABI-L2-CMIPM1-M6C02_G16_s20211231619248_e20211231619306_c20211231619382_DQF.tif"
             ]))
+
+    def test_satellite_number(self):
+        path = test_data.get_external_data(CMIP_FILE_NAME)
+        dataset = Dataset(path)
+        self.assertEqual(dataset.satellite_number, 16)
