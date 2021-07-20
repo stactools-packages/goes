@@ -1,13 +1,15 @@
 import dateutil
+import math
 import os.path
 from tempfile import TemporaryDirectory
 import unittest
 
+from shapely.geometry import shape
 from pystac import MediaType
 from pystac.extensions.projection import ProjectionExtension
 
 from stactools.goes import stac, __version__
-from tests import test_data, CMIP_FILE_NAME
+from tests import test_data, CMIP_FILE_NAME, CMIP_FULL_FILE_NAME
 
 
 class CreateItemTest(unittest.TestCase):
@@ -83,3 +85,11 @@ class CreateItemTest(unittest.TestCase):
         )
         item = stac.create_item(path)
         item.validate()
+
+    def test_full_product_geometry(self):
+        # https://github.com/stactools-packages/goes/issues/4
+        path = test_data.get_external_data(CMIP_FULL_FILE_NAME)
+        item = stac.create_item(path)
+        geometry = shape(item.geometry)
+        self.assertFalse(math.isnan(geometry.area),
+                         f"This geometry has a NaN area: {geometry}")

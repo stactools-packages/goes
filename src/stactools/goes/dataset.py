@@ -23,7 +23,7 @@ class Dataset:
     """A GOES dataset."""
     def __init__(self,
                  href: str,
-                 tight_geometry: bool = True,
+                 tight_geometry: bool = False,
                  read_href_modifier: Optional[ReadHrefModifier] = None):
         """Creates a new dataset from a netcdf href."""
         # Projection stuff built with help from

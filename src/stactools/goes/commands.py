@@ -18,7 +18,7 @@ def create_goes_command(cli):
                   "--cogify",
                   is_flag=True,
                   help="Convert the netcdf to two COGs")
-    @click.option("--tight-geometry/--no-tight-geometry", default=True)
+    @click.option("--tight-geometry/--no-tight-geometry", default=False)
     def create_item(href, destination, cogify, tight_geometry):
         """Creates a STAC item from a GOES netcdf file.
 
