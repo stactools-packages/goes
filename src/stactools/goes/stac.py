@@ -11,7 +11,7 @@ from stactools.goes import Dataset
 def create_item(href: str,
                 read_href_modifier: Optional[ReadHrefModifier] = None,
                 cog_directory: Optional[str] = None,
-                tight_geometry: bool = True) -> Item:
+                tight_geometry: bool = False) -> Item:
     """Creates a pystac.Item from a GOES netcdf file."""
     if read_href_modifier:
         href = read_href_modifier(href)
