@@ -62,8 +62,7 @@ def create_item_from_dataset(dataset: Dataset,
         item.add_asset(
             variable,
             Asset(href=path,
-                  title=(f"{dataset.title} "
-                         f"Cloud Optimized Geotiff ({variable})"),
+                  title=(dataset.long_name[variable]),
                   media_type=MediaType.COG,
                   roles=["data"]))
     return item

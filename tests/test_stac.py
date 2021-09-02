@@ -73,8 +73,7 @@ class CreateItemTest(unittest.TestCase):
             self.assertTrue(os.path.exists(cog_asset.href))
             self.assertEqual(
                 cog_asset.title,
-                "ABI L2 Cloud and Moisture Imagery Cloud Optimized Geotiff (CMI)"
-            )
+                "ABI L2+ Cloud and Moisture Imagery reflectance factor")
             self.assertEqual(cog_asset.roles, ["data"])
             self.assertEqual(cog_asset.media_type, MediaType.COG)
 
