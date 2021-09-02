@@ -41,6 +41,10 @@ class Dataset:
             self.variables = [
                 key for key in dataset.keys() if len(dataset[key].shape) == 2
             ]
+            self.long_name = dict(
+                (variable,
+                 dataset[variable].attrs["long_name"].decode("utf-8"))
+                for variable in self.variables)
             self.datetime = dateutil.parser.parse(
                 dataset.attrs["date_created"])
             self.start_datetime = dateutil.parser.parse(
