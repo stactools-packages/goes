@@ -6,21 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [v0.1.1] - 2021-09-02
 ### Added
 
-- Nothing.
-
-### Deprecated
-
-- Nothing.
-
-### Removed
-
-- Nothing.
-
-### Fixed
-
-- Nothing.
+- More descriptive titles for COG assets ([#9](https://github.com/stactools-packages/goes/pull/9))
 
 ## [v0.1.0] - 2021-07-29
 
