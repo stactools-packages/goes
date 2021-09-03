@@ -33,6 +33,19 @@ class CreateItemTest(unittest.TestCase):
             in item.stac_extensions)
         self.assertDictEqual(item.properties["processing:software"],
                              {"stactools-goes": __version__})
+        self.assertEqual(item.properties["goes:production-site"], "NSOF")
+        self.assertEqual(item.properties["goes:production-environment"], "OE")
+        self.assertEqual(item.properties["goes:orbital-slot"], "GOES-East")
+        self.assertEqual(item.properties["goes:platform-id"], "G16")
+        self.assertEqual(item.properties["goes:instrument-type"],
+                         "GOES R Series Advanced Baseline Imager")
+        self.assertEqual(item.properties["goes:scene-id"], "Mesoscale")
+        self.assertEqual(item.properties["goes:instrument-id"], "FM1")
+        self.assertEqual(item.properties["goes:timeline-id"], "ABI Mode 6")
+        self.assertEqual(item.properties["goes:production-data-source"],
+                         "Realtime")
+        self.assertEqual(item.properties["goes:id"],
+                         "68870b76-0238-4542-aeb2-a035f93990ed")
 
         data = item.assets["data"]
         self.assertEqual(data.href, path)

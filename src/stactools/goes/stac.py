@@ -42,6 +42,18 @@ def create_item_from_dataset(dataset: Dataset,
     item.properties["processing:software"] = {
         "stactools-goes": pkg_resources.require("stactools-goes")[0].version
     }
+    item.properties["goes:production-site"] = dataset.production_site
+    item.properties[
+        "goes:production-environment"] = dataset.production_environment
+    item.properties["goes:orbital-slot"] = dataset.orbital_slot
+    item.properties["goes:platform-id"] = dataset.platform_id
+    item.properties["goes:instrument-type"] = dataset.instrument_type
+    item.properties["goes:scene-id"] = dataset.scene_id
+    item.properties["goes:instrument-id"] = dataset.instrument_id
+    item.properties["goes:timeline-id"] = dataset.timeline_id
+    item.properties[
+        "goes:production-data-source"] = dataset.production_data_source
+    item.properties["goes:id"] = dataset.goes_id
 
     ProjectionExtension.add_to(item)
     projection = ProjectionExtension.ext(item)

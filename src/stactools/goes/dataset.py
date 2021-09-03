@@ -54,6 +54,19 @@ class Dataset:
             self.title = dataset.attrs["title"].decode("utf-8")
             self.description = dataset.attrs["summary"].decode("utf-8")
             self.platform_id = dataset.attrs["platform_ID"].decode("utf-8")
+            self.production_site = dataset.attrs["production_site"].decode(
+                "utf-8")
+            self.production_environment = dataset.attrs[
+                "production_environment"].decode("utf-8")
+            self.orbital_slot = dataset.attrs["orbital_slot"].decode("utf-8")
+            self.instrument_type = dataset.attrs["instrument_type"].decode(
+                "utf-8")
+            self.scene_id = dataset.attrs["scene_id"].decode("utf-8")
+            self.instrument_id = dataset.attrs["instrument_ID"].decode("utf-8")
+            self.timeline_id = dataset.attrs["timeline_id"].decode("utf-8")
+            self.production_data_source = dataset.attrs[
+                "production_data_source"].decode("utf-8")
+            self.goes_id = dataset.attrs["id"].decode("utf-8")
             projection = dataset["goes_imager_projection"]
             sweep_angle_axis = projection.attrs["sweep_angle_axis"].decode(
                 "utf-8")
