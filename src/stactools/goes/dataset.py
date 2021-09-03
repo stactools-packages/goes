@@ -90,6 +90,18 @@ class Dataset:
             y_scale = dataset["y"].attrs["scale_factor"][0].item()
             y_offset = dataset["y"].attrs["add_offset"][0].item()
 
+            self.channels = None
+            self.band_wavelengths = None
+            # MCMIP
+            if (self.title == "ABI L2 Cloud and Moisture Imagery") and (
+                    "CMI_C01" in self.variables):
+                self.channels = list(
+                    set(variable.split('_')[1] for variable in self.variables))
+                self.channels.sort()
+                self.band_wavelength = dict(
+                    (channel, dataset[f"band_wavelength_{channel}"][0].item())
+                    for channel in self.channels)
+
         assert len(self.platform_id) > 1
         assert self.platform_id.startswith("G")
         self.satellite_number = int(self.platform_id[1:])

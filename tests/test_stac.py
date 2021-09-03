@@ -7,9 +7,10 @@ import unittest
 from shapely.geometry import shape
 from pystac import MediaType
 from pystac.extensions.projection import ProjectionExtension
+from pystac.extensions.eo import EOExtension
 
 from stactools.goes import stac, __version__
-from tests import test_data, CMIP_FILE_NAME, CMIP_FULL_FILE_NAME
+from tests import test_data, CMIP_FILE_NAME, CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME
 
 
 class CreateItemTest(unittest.TestCase):
@@ -105,3 +106,24 @@ class CreateItemTest(unittest.TestCase):
         geometry = shape(item.geometry)
         self.assertFalse(math.isnan(geometry.area),
                          f"This geometry has a NaN area: {geometry}")
+
+    def test_mcmip_eo(self):
+        path = test_data.get_external_data(MCMIP_FILE_NAME)
+        with TemporaryDirectory() as tmp_dir:
+            item = stac.create_item(path, cog_directory=tmp_dir)
+            data = item.assets["data"]
+            eo = EOExtension.ext(data)
+            self.assertEqual(len(eo.bands), 16)
+            for band in eo.bands:
+                self.assertIsNotNone(band.name)
+                self.assertIsNotNone(band.center_wavelength)
+            channels = [f"C{n:02}" for n in range(1, 17)]
+            for channel in channels:
+                cmi = item.assets[f"CMI_{channel}"]
+                eo = EOExtension.ext(cmi)
+                self.assertEqual(len(eo.bands), 1)
+                self.assertEqual(eo.bands[0].name, channel)
+                dqf = item.assets[f"DQF_{channel}"]
+                eo = EOExtension.ext(dqf)
+                self.assertEqual(len(eo.bands), 1)
+                self.assertEqual(eo.bands[0].name, channel)
