@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [v0.1.3] - 2021-09-07
+
+### Added
+
+- GOES-specific metadata ([#12](https://github.com/stactools-packages/goes/pull/12))
+
+### Fixed
+
+- Re-added stderr/stdout to cogify ([#15](https://github.com/stactools-packages/goes/pull/15))
+
+
 ## [v0.1.2] - 2021-09-07
 
 ### Added
