@@ -128,5 +128,4 @@ class CreateItemTest(unittest.TestCase):
                 self.assertEqual(eo.bands[0].name, channel)
                 dqf = item.assets[f"DQF_{channel}"]
                 eo = EOExtension.ext(dqf)
-                self.assertEqual(len(eo.bands), 1)
-                self.assertEqual(eo.bands[0].name, channel)
+                self.assertIsNone(eo.bands)
