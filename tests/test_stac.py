@@ -34,6 +34,20 @@ class CreateItemTest(unittest.TestCase):
             in item.stac_extensions)
         self.assertDictEqual(item.properties["processing:software"],
                              {"stactools-goes": __version__})
+        self.assertEqual(item.properties["goes:production-site"], "NSOF")
+        self.assertEqual(item.properties["goes:production-environment"], "OE")
+        self.assertEqual(item.properties["goes:orbital-slot"], "GOES-East")
+        self.assertEqual(item.properties["goes:platform-id"], "G16")
+        self.assertEqual(item.properties["goes:instrument-type"],
+                         "GOES R Series Advanced Baseline Imager")
+        self.assertEqual(item.properties["goes:scene-id"], "Mesoscale")
+        self.assertEqual(item.properties["goes:instrument-id"], "FM1")
+        self.assertEqual(item.properties["goes:timeline-id"], "ABI Mode 6")
+        self.assertEqual(item.properties["goes:production-data-source"],
+                         "Realtime")
+        self.assertEqual(item.properties["goes:id"],
+                         "68870b76-0238-4542-aeb2-a035f93990ed")
+        self.assertEqual(item.properties["goes:mesoscale-image-number"], 1)
 
         data = item.assets["data"]
         self.assertEqual(data.href, path)
@@ -84,12 +98,14 @@ class CreateItemTest(unittest.TestCase):
             "OR_ABI-L2-LSTM2-M6_G16_s20211381700538_e20211381700595_c20211381701211.nc"
         )
         item = stac.create_item(path)
+        self.assertEqual(item.properties["goes:mesoscale-image-number"], 2)
         item.validate()
 
     def test_full_product_geometry(self):
         # https://github.com/stactools-packages/goes/issues/4
         path = test_data.get_external_data(CMIP_FULL_FILE_NAME)
         item = stac.create_item(path)
+        self.assertEqual(item.properties["goes:mesoscale-image-number"], None)
         geometry = shape(item.geometry)
         self.assertFalse(math.isnan(geometry.area),
                          f"This geometry has a NaN area: {geometry}")
