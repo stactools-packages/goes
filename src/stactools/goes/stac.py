@@ -55,6 +55,8 @@ def create_item_from_dataset(dataset: Dataset,
     item.properties[
         "goes:production-data-source"] = dataset.production_data_source
     item.properties["goes:id"] = dataset.goes_id
+    item.properties[
+        "goes:mesoscale-image-number"] = dataset.mesoscale_image_number
 
     ProjectionExtension.add_to(item)
     projection = ProjectionExtension.ext(item)

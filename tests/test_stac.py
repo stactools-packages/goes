@@ -47,6 +47,7 @@ class CreateItemTest(unittest.TestCase):
                          "Realtime")
         self.assertEqual(item.properties["goes:id"],
                          "68870b76-0238-4542-aeb2-a035f93990ed")
+        self.assertEqual(item.properties["goes:mesoscale-image-number"], 1)
 
         data = item.assets["data"]
         self.assertEqual(data.href, path)
@@ -97,12 +98,14 @@ class CreateItemTest(unittest.TestCase):
             "OR_ABI-L2-LSTM2-M6_G16_s20211381700538_e20211381700595_c20211381701211.nc"
         )
         item = stac.create_item(path)
+        self.assertEqual(item.properties["goes:mesoscale-image-number"], 2)
         item.validate()
 
     def test_full_product_geometry(self):
         # https://github.com/stactools-packages/goes/issues/4
         path = test_data.get_external_data(CMIP_FULL_FILE_NAME)
         item = stac.create_item(path)
+        self.assertEqual(item.properties["goes:mesoscale-image-number"], None)
         geometry = shape(item.geometry)
         self.assertFalse(math.isnan(geometry.area),
                          f"This geometry has a NaN area: {geometry}")

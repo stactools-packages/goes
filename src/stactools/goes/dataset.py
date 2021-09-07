@@ -35,6 +35,12 @@ class Dataset:
         else:
             self.href = href
         self.variables = []
+        parts = self.id.split('-')
+        assert len(parts) >= 3
+        if parts[2].endswith(('M1', 'M2')):
+            self.mesoscale_image_number = int(parts[2][-1])
+        else:
+            self.mesoscale_image_number = None
         with fsspec.open(self.href) as file:
             dataset = File(file)
 
