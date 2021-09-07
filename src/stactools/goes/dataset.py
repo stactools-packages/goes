@@ -1,4 +1,5 @@
 import dateutil
+import logging
 import os.path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -19,6 +20,8 @@ from stactools.goes.errors import CogifyError
 
 GOES_ELLIPSOID = CustomEllipsoid.from_name("GRS80")
 BLOCKSIZE = 2**22
+
+logger = logging.getLogger(__name__)
 
 
 class Dataset:
@@ -168,9 +171,14 @@ class Dataset:
                 "gdal_translate", "-of", "COG", "-co", "compress=deflate",
                 infile, outfile
             ]
+            logger.info(f"Running {args}")
             result = subprocess.run(args, capture_output=True)
+            logger.info(result.stdout.decode('utf-8').strip())
             if result.returncode != 0:
-                raise CogifyError(result.stderr.decode('utf-8'))
+                logger.error(result.stderr.decode('utf-8').strip())
+                raise CogifyError(result.stderr.decode('utf-8').strip())
+            else:
+                logger.info(result.stderr.decode('utf-8').strip())
             cogs[variable] = outfile
         return cogs
 
