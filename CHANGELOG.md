@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [v0.1.4] - 2021-09-07
+
+### Changed
+
+- Don't add `eo:bands` to DQF files in MCMIP products ([#17](https://github.com/stactools-packages/goes/pull/17))
+
 ## [v0.1.3] - 2021-09-07
 
 ### Added
