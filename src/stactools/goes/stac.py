@@ -7,6 +7,9 @@ from pystac.extensions.eo import Band, EOExtension
 
 from stactools.core.io import ReadHrefModifier
 from stactools.goes import Dataset
+from stactools.goes.enums import (ProductionEnvironment, OrbitalSlot, Mode,
+                                  ImageType, ProductionDataSource, PlatformId,
+                                  MesoscaleImageNumber)
 
 
 def create_item(href: str,
@@ -44,19 +47,23 @@ def create_item_from_dataset(dataset: Dataset,
         "stactools-goes": pkg_resources.require("stactools-goes")[0].version
     }
     item.properties["goes:production-site"] = dataset.production_site
-    item.properties[
-        "goes:production-environment"] = dataset.production_environment
-    item.properties["goes:orbital-slot"] = dataset.orbital_slot
-    item.properties["goes:platform-id"] = dataset.platform_id
+    item.properties["goes:production-environment"] = ProductionEnvironment(
+        dataset.production_environment).value
+    item.properties["goes:orbital-slot"] = OrbitalSlot(
+        dataset.orbital_slot).value
+    item.properties["goes:platform-id"] = PlatformId(dataset.platform_id).value
     item.properties["goes:instrument-type"] = dataset.instrument_type
-    item.properties["goes:scene-id"] = dataset.scene_id
+    item.properties["goes:scene-id"] = ImageType(dataset.scene_id).value
     item.properties["goes:instrument-id"] = dataset.instrument_id
-    item.properties["goes:timeline-id"] = dataset.timeline_id
-    item.properties[
-        "goes:production-data-source"] = dataset.production_data_source
+    item.properties["goes:timeline-id"] = Mode(dataset.timeline_id).value
+    item.properties["goes:production-data-source"] = ProductionDataSource(
+        dataset.production_data_source).value
     item.properties["goes:id"] = dataset.goes_id
-    item.properties[
-        "goes:mesoscale-image-number"] = dataset.mesoscale_image_number
+    if dataset.mesoscale_image_number:
+        item.properties["goes:mesoscale-image-number"] = MesoscaleImageNumber(
+            dataset.mesoscale_image_number).value
+    else:
+        item.properties["goes:mesoscale-image-number"] = None
 
     ProjectionExtension.add_to(item)
     projection = ProjectionExtension.ext(item)
