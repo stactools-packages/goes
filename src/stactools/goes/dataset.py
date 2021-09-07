@@ -1,5 +1,7 @@
 import dateutil
+import logging
 import os.path
+import subprocess
 from tempfile import TemporaryDirectory
 from typing import Dict, Optional, List
 from urllib.parse import urlparse
@@ -13,10 +15,13 @@ from shapely.geometry import mapping, Polygon, box
 
 from stactools.core.io import ReadHrefModifier
 from stactools.core.projection import reproject_geom
-from stactools.core.utils.convert import cogify
+
+from stactools.goes.errors import CogifyError
 
 GOES_ELLIPSOID = CustomEllipsoid.from_name("GRS80")
 BLOCKSIZE = 2**22
+
+logger = logging.getLogger(__name__)
 
 
 class Dataset:
@@ -180,7 +185,19 @@ class Dataset:
         cogs = {}
         for variable in self.variables:
             outfile = os.path.join(directory, self.cog_file_name(variable))
-            cogify(self._gdal_path(path, variable), outfile)
+            infile = self._gdal_path(path, variable)
+            args = [
+                "gdal_translate", "-of", "COG", "-co", "compress=deflate",
+                infile, outfile
+            ]
+            logger.info(f"Running {args}")
+            result = subprocess.run(args, capture_output=True)
+            logger.info(result.stdout.decode('utf-8').strip())
+            if result.returncode != 0:
+                logger.error(result.stderr.decode('utf-8').strip())
+                raise CogifyError(result.stderr.decode('utf-8').strip())
+            else:
+                logger.info(result.stderr.decode('utf-8').strip())
             cogs[variable] = outfile
         return cogs
 

@@ -2,8 +2,8 @@ import os.path
 from tempfile import TemporaryDirectory
 import unittest
 
-from stactools.goes import Dataset
-from tests import test_data, CMIP_FILE_NAME
+from stactools.goes import Dataset, CogifyError
+from tests import CORRUPT_FILE_NAME, test_data, CMIP_FILE_NAME
 
 
 class DatasetTest(unittest.TestCase):
@@ -45,6 +45,13 @@ class DatasetTest(unittest.TestCase):
                 "OR_ABI-L2-CMIPM1-M6C02_G16_s20211231619248_e20211231619306_c20211231619382_CMI.tif",  # noqa
                 "OR_ABI-L2-CMIPM1-M6C02_G16_s20211231619248_e20211231619306_c20211231619382_DQF.tif"
             ]))
+
+    def test_cogify_corrupt(self):
+        path = test_data.get_external_data(CORRUPT_FILE_NAME)
+        dataset = Dataset(path)
+        with TemporaryDirectory() as directory:
+            with self.assertRaises(CogifyError):
+                dataset.cogify(directory)
 
     def test_satellite_number(self):
         path = test_data.get_external_data(CMIP_FILE_NAME)

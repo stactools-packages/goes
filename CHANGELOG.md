@@ -6,7 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [v0.1.2] - 2021-09-07
+
+### Added
+
+- EO extension for MCMIP items ([#11](https://github.com/stactools-packages/goes/pull/11))
+- Raise an error when COGification fails ([#13](https://github.com/stactools-packages/goes/pull/13))
+
 ## [v0.1.1] - 2021-09-02
+
 ### Added
 
 - More descriptive titles for COG assets ([#9](https://github.com/stactools-packages/goes/pull/9))
