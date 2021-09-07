@@ -103,7 +103,11 @@ def create_item_from_dataset(dataset: Dataset,
                   media_type=MediaType.COG,
                   roles=["data"]))
         if bands:
-            channel = variable.split('_')[1]
+            parts = variable.split('_')
+            assert len(parts) == 2
+            variable_category, channel = parts
+            if variable_category == "DQF":
+                continue
             eo = EOExtension.ext(item.assets[variable])
             eo.bands = [bands[channel]]
     return item
