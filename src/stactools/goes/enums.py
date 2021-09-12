@@ -24,6 +24,7 @@ class ProductionDataSource(Enum):
     SIMULATED = "Simulated"
     PLAYBACK = "Playback"
     TEST = "Test"
+    NA = "n/a"
 
 
 class ImageType(Enum):
