@@ -15,8 +15,7 @@ Launches a Jupyter notebook in a docker container with all prerequisites install
 
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
     docker run --rm -it \
-        -v `pwd`:/opt/src \
-        -v ${HOME}/.planet.json:/root/.planet.json:ro \
+        -v `pwd`:/src/stactools-goes \
         --entrypoint jupyter \
         -p 8888:8888 \
         stactools-goes:latest \
@@ -25,5 +24,5 @@ if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
         --port=8888 \
         --no-browser \
         --allow-root \
-        --notebook-dir=/opt/src
+        --notebook-dir=/src/stactools-goes
 fi
