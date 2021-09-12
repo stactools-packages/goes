@@ -3,7 +3,7 @@ from tempfile import TemporaryDirectory
 import unittest
 
 from stactools.goes import Dataset, CogifyError
-from tests import CORRUPT_FILE_NAME, test_data, CMIP_FILE_NAME
+from tests import CORRUPT_FILE_NAME, NO_LONG_DESC, test_data, CMIP_FILE_NAME
 
 
 class DatasetTest(unittest.TestCase):
@@ -52,6 +52,11 @@ class DatasetTest(unittest.TestCase):
         with TemporaryDirectory() as directory:
             with self.assertRaises(CogifyError):
                 dataset.cogify(directory)
+
+    def test_read_file_with_no_long_description(self):
+        path = test_data.get_external_data(NO_LONG_DESC)
+        dataset = Dataset(path)
+        self.assertTrue(dataset.variables)
 
     def test_satellite_number(self):
         path = test_data.get_external_data(CMIP_FILE_NAME)
