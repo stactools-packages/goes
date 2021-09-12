@@ -14,6 +14,7 @@ from pyproj.crs.coordinate_operation import GeostationarySatelliteConversion
 from shapely.geometry import mapping, Polygon, box
 
 from stactools.core.io import ReadHrefModifier
+from stactools.core.utils import map_opt
 from stactools.core.projection import reproject_geom
 
 from stactools.goes.errors import CogifyError
@@ -52,9 +53,11 @@ class Dataset:
             self.variables = [
                 key for key in dataset.keys() if len(dataset[key].shape) == 2
             ]
+
             self.long_name = dict(
                 (variable,
-                 dataset[variable].attrs["long_name"].decode("utf-8"))
+                 map_opt(lambda x: x.decode("utf-8"),
+                         dataset[variable].attrs.get("long_name")))
                 for variable in self.variables)
             self.datetime = dateutil.parser.parse(
                 dataset.attrs["date_created"])
