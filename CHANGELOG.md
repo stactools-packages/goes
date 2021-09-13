@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Allow n/a as a ProductionDataSource ([#19](https://github.com/stactools-packages/goes/pull/19))
+- Avoid errors when `long_description` is not set ([#19](https://github.com/stactools-packages/goes/pull/19))
+- Close hdfpy File to ensure proper cleanup ([#19](https://github.com/stactools-packages/goes/pull/19))
+
 ## [v0.1.4] - 2021-09-07
 
 ### Changed
