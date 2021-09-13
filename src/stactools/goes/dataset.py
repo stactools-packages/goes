@@ -48,73 +48,78 @@ class Dataset:
         else:
             self.mesoscale_image_number = None
         with fsspec.open(self.href) as file:
-            dataset = File(file)
+            with File(file) as dataset:
+                self.variables = [
+                    key for key in dataset.keys()
+                    if len(dataset[key].shape) == 2
+                ]
 
-            self.variables = [
-                key for key in dataset.keys() if len(dataset[key].shape) == 2
-            ]
+                self.long_name = dict(
+                    (variable,
+                     map_opt(lambda x: x.decode("utf-8"),
+                             dataset[variable].attrs.get("long_name")))
+                    for variable in self.variables)
+                self.datetime = dateutil.parser.parse(
+                    dataset.attrs["date_created"])
+                self.start_datetime = dateutil.parser.parse(
+                    dataset.attrs["time_coverage_start"])
+                self.end_datetime = dateutil.parser.parse(
+                    dataset.attrs["time_coverage_end"])
+                self.title = dataset.attrs["title"].decode("utf-8")
+                self.description = dataset.attrs["summary"].decode("utf-8")
+                self.platform_id = dataset.attrs["platform_ID"].decode("utf-8")
+                self.production_site = dataset.attrs["production_site"].decode(
+                    "utf-8")
+                self.production_environment = dataset.attrs[
+                    "production_environment"].decode("utf-8")
+                self.orbital_slot = dataset.attrs["orbital_slot"].decode(
+                    "utf-8")
+                self.instrument_type = dataset.attrs["instrument_type"].decode(
+                    "utf-8")
+                self.scene_id = dataset.attrs["scene_id"].decode("utf-8")
+                self.instrument_id = dataset.attrs["instrument_ID"].decode(
+                    "utf-8")
+                self.timeline_id = dataset.attrs["timeline_id"].decode("utf-8")
+                self.production_data_source = dataset.attrs[
+                    "production_data_source"].decode("utf-8")
+                self.goes_id = dataset.attrs["id"].decode("utf-8")
+                projection = dataset["goes_imager_projection"]
+                sweep_angle_axis = projection.attrs["sweep_angle_axis"].decode(
+                    "utf-8")
+                satellite_height = projection.attrs[
+                    "perspective_point_height"][0].item()
+                latitude_natural_origin = projection.attrs[
+                    "latitude_of_projection_origin"][0].item()
+                longitude_natural_origin = projection.attrs[
+                    "longitude_of_projection_origin"][0].item()
+                extent = dataset["geospatial_lat_lon_extent"]
+                xmin = extent.attrs["geospatial_westbound_longitude"][0].item()
+                ymin = extent.attrs["geospatial_southbound_latitude"][0].item()
+                xmax = extent.attrs["geospatial_eastbound_longitude"][0].item()
+                ymax = extent.attrs["geospatial_northbound_latitude"][0].item()
+                rowcount = len(dataset["x"][:])
+                colcount = len(dataset["y"][:])
+                x = dataset["x"][:].tolist()
+                x_scale = dataset["x"].attrs["scale_factor"][0].item()
+                x_offset = dataset["x"].attrs["add_offset"][0].item()
+                y = dataset["y"][:].tolist()
+                y_scale = dataset["y"].attrs["scale_factor"][0].item()
+                y_offset = dataset["y"].attrs["add_offset"][0].item()
 
-            self.long_name = dict(
-                (variable,
-                 map_opt(lambda x: x.decode("utf-8"),
-                         dataset[variable].attrs.get("long_name")))
-                for variable in self.variables)
-            self.datetime = dateutil.parser.parse(
-                dataset.attrs["date_created"])
-            self.start_datetime = dateutil.parser.parse(
-                dataset.attrs["time_coverage_start"])
-            self.end_datetime = dateutil.parser.parse(
-                dataset.attrs["time_coverage_end"])
-            self.title = dataset.attrs["title"].decode("utf-8")
-            self.description = dataset.attrs["summary"].decode("utf-8")
-            self.platform_id = dataset.attrs["platform_ID"].decode("utf-8")
-            self.production_site = dataset.attrs["production_site"].decode(
-                "utf-8")
-            self.production_environment = dataset.attrs[
-                "production_environment"].decode("utf-8")
-            self.orbital_slot = dataset.attrs["orbital_slot"].decode("utf-8")
-            self.instrument_type = dataset.attrs["instrument_type"].decode(
-                "utf-8")
-            self.scene_id = dataset.attrs["scene_id"].decode("utf-8")
-            self.instrument_id = dataset.attrs["instrument_ID"].decode("utf-8")
-            self.timeline_id = dataset.attrs["timeline_id"].decode("utf-8")
-            self.production_data_source = dataset.attrs[
-                "production_data_source"].decode("utf-8")
-            self.goes_id = dataset.attrs["id"].decode("utf-8")
-            projection = dataset["goes_imager_projection"]
-            sweep_angle_axis = projection.attrs["sweep_angle_axis"].decode(
-                "utf-8")
-            satellite_height = projection.attrs["perspective_point_height"][
-                0].item()
-            latitude_natural_origin = projection.attrs[
-                "latitude_of_projection_origin"][0].item()
-            longitude_natural_origin = projection.attrs[
-                "longitude_of_projection_origin"][0].item()
-            extent = dataset["geospatial_lat_lon_extent"]
-            xmin = extent.attrs["geospatial_westbound_longitude"][0].item()
-            ymin = extent.attrs["geospatial_southbound_latitude"][0].item()
-            xmax = extent.attrs["geospatial_eastbound_longitude"][0].item()
-            ymax = extent.attrs["geospatial_northbound_latitude"][0].item()
-            rowcount = len(dataset["x"][:])
-            colcount = len(dataset["y"][:])
-            x = dataset["x"][:].tolist()
-            x_scale = dataset["x"].attrs["scale_factor"][0].item()
-            x_offset = dataset["x"].attrs["add_offset"][0].item()
-            y = dataset["y"][:].tolist()
-            y_scale = dataset["y"].attrs["scale_factor"][0].item()
-            y_offset = dataset["y"].attrs["add_offset"][0].item()
-
-            self.channels = None
-            self.band_wavelengths = None
-            # MCMIP
-            if (self.title == "ABI L2 Cloud and Moisture Imagery") and (
-                    "CMI_C01" in self.variables):
-                self.channels = list(
-                    set(variable.split('_')[1] for variable in self.variables))
-                self.channels.sort()
-                self.band_wavelength = dict(
-                    (channel, dataset[f"band_wavelength_{channel}"][0].item())
-                    for channel in self.channels)
+                self.channels = None
+                self.band_wavelengths = None
+                # MCMIP
+                if (self.title == "ABI L2 Cloud and Moisture Imagery") and (
+                        "CMI_C01" in self.variables):
+                    self.channels = list(
+                        set(
+                            variable.split('_')[1]
+                            for variable in self.variables))
+                    self.channels.sort()
+                    self.band_wavelength = dict(
+                        (channel,
+                         dataset[f"band_wavelength_{channel}"][0].item())
+                        for channel in self.channels)
 
         assert len(self.platform_id) > 1
         assert self.platform_id.startswith("G")
