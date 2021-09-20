@@ -1,213 +1,129 @@
-import dateutil
+from dataclasses import dataclass
 import logging
-import os.path
-import subprocess
-from tempfile import TemporaryDirectory
-from typing import Dict, Optional, List
-from urllib.parse import urlparse
+from typing import Any, Dict, List
 
 from h5py import File
-import fsspec
 from pyproj.crs import ProjectedCRS, GeographicCRS
 from pyproj.crs.datum import CustomDatum, CustomEllipsoid
 from pyproj.crs.coordinate_operation import GeostationarySatelliteConversion
 from shapely.geometry import mapping, Polygon, box
 
-from stactools.core.io import ReadHrefModifier
-from stactools.core.utils import map_opt
 from stactools.core.projection import reproject_geom
-
-from stactools.goes.errors import CogifyError
+from stactools.goes.attributes import GlobalAttributes
+from stactools.goes.enums import ImageType
+from stactools.goes.file_name import ABIL2FileName
 
 GOES_ELLIPSOID = CustomEllipsoid.from_name("GRS80")
-BLOCKSIZE = 2**22
 
 logger = logging.getLogger(__name__)
 
 
-class Dataset:
-    """A GOES dataset."""
-    def __init__(self,
-                 href: str,
-                 tight_geometry: bool = False,
-                 read_href_modifier: Optional[ReadHrefModifier] = None):
-        """Creates a new dataset from a netcdf href."""
-        # Projection stuff built with help from
-        # https://github.com/OSGeo/gdal/blob/95e35bd1c40ec6ce33341ed6390cce955048067f/gdal/frmts/netcdf/netcdfdataset.cpp
-        self.id = os.path.splitext(os.path.basename(href))[0]
-        self.original_href = href
-        if read_href_modifier:
-            self.href = read_href_modifier(href)
-        else:
-            self.href = href
-        self.variables = []
-        parts = self.id.split('-')
-        assert len(parts) >= 3
-        if parts[2].endswith(('M1', 'M2')):
-            self.mesoscale_image_number = int(parts[2][-1])
-        else:
-            self.mesoscale_image_number = None
-        with fsspec.open(self.href) as file:
-            with File(file) as dataset:
-                self.variables = [
-                    key for key in dataset.keys()
-                    if len(dataset[key].shape) == 2
-                ]
+@dataclass
+class DatasetGeometry:
+    """The projection and geometry information for a GOES netcdf dataset.
 
-                self.long_name = dict(
-                    (variable,
-                     map_opt(lambda x: x.decode("utf-8"),
-                             dataset[variable].attrs.get("long_name")))
-                    for variable in self.variables)
-                self.datetime = dateutil.parser.parse(
-                    dataset.attrs["date_created"])
-                self.start_datetime = dateutil.parser.parse(
-                    dataset.attrs["time_coverage_start"])
-                self.end_datetime = dateutil.parser.parse(
-                    dataset.attrs["time_coverage_end"])
-                self.title = dataset.attrs["title"].decode("utf-8")
-                self.description = dataset.attrs["summary"].decode("utf-8")
-                self.platform_id = dataset.attrs["platform_ID"].decode("utf-8")
-                self.production_site = dataset.attrs["production_site"].decode(
-                    "utf-8")
-                self.production_environment = dataset.attrs[
-                    "production_environment"].decode("utf-8")
-                self.orbital_slot = dataset.attrs["orbital_slot"].decode(
-                    "utf-8")
-                self.instrument_type = dataset.attrs["instrument_type"].decode(
-                    "utf-8")
-                self.scene_id = dataset.attrs["scene_id"].decode("utf-8")
-                self.instrument_id = dataset.attrs["instrument_ID"].decode(
-                    "utf-8")
-                self.timeline_id = dataset.attrs["timeline_id"].decode("utf-8")
-                self.production_data_source = dataset.attrs[
-                    "production_data_source"].decode("utf-8")
-                self.goes_id = dataset.attrs["id"].decode("utf-8")
-                projection = dataset["goes_imager_projection"]
-                sweep_angle_axis = projection.attrs["sweep_angle_axis"].decode(
-                    "utf-8")
-                satellite_height = projection.attrs[
-                    "perspective_point_height"][0].item()
-                latitude_natural_origin = projection.attrs[
-                    "latitude_of_projection_origin"][0].item()
-                longitude_natural_origin = projection.attrs[
-                    "longitude_of_projection_origin"][0].item()
-                extent = dataset["geospatial_lat_lon_extent"]
-                xmin = extent.attrs["geospatial_westbound_longitude"][0].item()
-                ymin = extent.attrs["geospatial_southbound_latitude"][0].item()
-                xmax = extent.attrs["geospatial_eastbound_longitude"][0].item()
-                ymax = extent.attrs["geospatial_northbound_latitude"][0].item()
-                rowcount = len(dataset["x"][:])
-                colcount = len(dataset["y"][:])
-                x = dataset["x"][:].tolist()
-                x_scale = dataset["x"].attrs["scale_factor"][0].item()
-                x_offset = dataset["x"].attrs["add_offset"][0].item()
-                y = dataset["y"][:].tolist()
-                y_scale = dataset["y"].attrs["scale_factor"][0].item()
-                y_offset = dataset["y"].attrs["add_offset"][0].item()
+    Projection stuff built with help from
+    https://github.com/OSGeo/gdal/blob/95e35bd1c40ec6ce33341ed6390cce955048067f/gdal/frmts/netcdf/netcdfdataset.cpp
+    """
+    projection_wkt2: str
+    projection_shape: List[int]
+    projection_transform: List[float]
+    projection_bbox: List[float]
+    bbox: List[float]
+    footprint: Dict[str, Any]
 
-                self.channels = None
-                self.band_wavelengths = None
-                # MCMIP
-                if (self.title == "ABI L2 Cloud and Moisture Imagery") and (
-                        "CMI_C01" in self.variables):
-                    self.channels = list(
-                        set(
-                            variable.split('_')[1]
-                            for variable in self.variables))
-                    self.channels.sort()
-                    self.band_wavelength = dict(
-                        (channel,
-                         dataset[f"band_wavelength_{channel}"][0].item())
-                        for channel in self.channels)
-
-        assert len(self.platform_id) > 1
-        assert self.platform_id.startswith("G")
-        self.satellite_number = int(self.platform_id[1:])
+    @classmethod
+    def from_nc(cls, nc: File, image_type: ImageType) -> "DatasetGeometry":
+        projection = nc["goes_imager_projection"]
+        sweep_angle_axis = projection.attrs["sweep_angle_axis"].decode("utf-8")
+        satellite_height = projection.attrs["perspective_point_height"][
+            0].item()
+        latitude_natural_origin = projection.attrs[
+            "latitude_of_projection_origin"][0].item()
+        longitude_natural_origin = projection.attrs[
+            "longitude_of_projection_origin"][0].item()
+        extent = nc["geospatial_lat_lon_extent"]
+        xmin = extent.attrs["geospatial_westbound_longitude"][0].item()
+        ymin = extent.attrs["geospatial_southbound_latitude"][0].item()
+        xmax = extent.attrs["geospatial_eastbound_longitude"][0].item()
+        ymax = extent.attrs["geospatial_northbound_latitude"][0].item()
+        rowcount = len(nc["x"][:])
+        colcount = len(nc["y"][:])
+        x = nc["x"][:].tolist()
+        x_scale = nc["x"].attrs["scale_factor"][0].item()
+        x_offset = nc["x"].attrs["add_offset"][0].item()
+        y = nc["y"][:].tolist()
+        y_scale = nc["y"].attrs["scale_factor"][0].item()
+        y_offset = nc["y"].attrs["add_offset"][0].item()
 
         # we let GRS80 and WGS84 be ~the same for these purposes, since we're
         # not looking for survey-level precision in these bounds
-        self.bbox = [xmin, ymin, xmax, ymax]
+        bbox = [xmin, ymin, xmax, ymax]
+
         datum = CustomDatum(ellipsoid=GOES_ELLIPSOID)
         conversion = GeostationarySatelliteConversion(
             sweep_angle_axis, satellite_height, latitude_natural_origin,
             longitude_natural_origin)
         crs = ProjectedCRS(conversion=conversion,
                            geodetic_crs=GeographicCRS(datum=datum))
-        self.projection_wkt2 = crs.to_wkt()
-        self.projection_shape = [rowcount, colcount]
+
+        projection_wkt2 = crs.to_wkt()
+        projection_shape = [rowcount, colcount]
+
         x_bounds = [(x_scale * x + x_offset) * satellite_height
                     for x in [x[0], x[-1]]]
         y_bounds = [(y_scale * y + y_offset) * satellite_height
                     for y in [y[0], y[-1]]]
         xres = (x_bounds[1] - x_bounds[0]) / (rowcount - 1)
         yres = (y_bounds[1] - y_bounds[0]) / (colcount - 1)
-        self.projection_transform = [
+
+        projection_transform = [
             xres, 0, x_bounds[0] - xres / 2, 0, yres, y_bounds[0] - yres / 2,
             0, 0, 1
         ]
-        if tight_geometry:
+        projection_bbox = [x_bounds[0], y_bounds[0], x_bounds[1], y_bounds[1]]
+
+        if image_type != ImageType.FULL_DISK:
             projection_geometry = Polygon([(x_bounds[0], y_bounds[0]),
                                            (x_bounds[0], y_bounds[1]),
                                            (x_bounds[1], y_bounds[1]),
                                            (x_bounds[1], y_bounds[0])])
-            self.geometry = reproject_geom(crs, "EPSG:4326",
-                                           mapping(projection_geometry))
+
+            geometry = reproject_geom(crs, "EPSG:4326",
+                                      mapping(projection_geometry))
         else:
-            self.geometry = mapping(box(*self.bbox))
+            # Full disk images don't map to espg:4326 well
+            # Just use the bbox
+            # https://github.com/stactools-packages/goes/issues/4
+            geometry = mapping(box(*bbox))
 
-    def cogify(
-        self,
-        directory: str,
-    ) -> Dict[str, str]:
-        """Converts a GOES NetCDF file into two or more COGs in the provided output directory.
+        return DatasetGeometry(projection_wkt2=projection_wkt2,
+                               projection_shape=projection_shape,
+                               projection_transform=projection_transform,
+                               projection_bbox=projection_bbox,
+                               bbox=bbox,
+                               footprint=geometry)
 
-        Returns the cogs as a dict of variable name -> path. If there is just
-        one variables and one data quality field, two cogs will be created.
-        Compound datasets, e.g. MCMIP, will produce 2
-        * n files, were n is the number of subdatasets.
-        """
-        if urlparse(self.href).scheme:
-            with TemporaryDirectory() as temporary_directory:
-                file_name = os.path.basename(self.original_href)
-                local_path = os.path.join(temporary_directory, file_name)
-                with fsspec.open(self.href) as source:
-                    with fsspec.open(local_path, "wb") as target:
-                        data = True
-                        while data:
-                            data = source.read(BLOCKSIZE)
-                            target.write(data)
-                return self._cogify(local_path, directory)
-        else:
-            return self._cogify(self.href, directory)
 
-    def cog_file_names(self) -> List[str]:
-        """Returns a list of all COG file names for this dataset."""
-        return [self.cog_file_name(variable) for variable in self.variables]
+@dataclass
+class Dataset:
+    """A GOES netcdf dataset."""
 
-    def cog_file_name(self, variable: str) -> str:
-        """Returns the COG file name for the provided variable."""
-        return f"{self.id}_{variable}.tif"
+    file_name: ABIL2FileName
+    global_attributes: GlobalAttributes
+    geometry: DatasetGeometry
+    asset_variables: List[str]
+    """Keys are variable names, values are long description.
 
-    def _cogify(self, path: str, directory: str) -> Dict[str, str]:
-        cogs = {}
-        for variable in self.variables:
-            outfile = os.path.join(directory, self.cog_file_name(variable))
-            infile = self._gdal_path(path, variable)
-            args = [
-                "gdal_translate", "-of", "COG", "-co", "compress=deflate",
-                infile, outfile
-            ]
-            logger.info(f"Running {args}")
-            result = subprocess.run(args, capture_output=True)
-            logger.info(result.stdout.decode('utf-8').strip())
-            if result.returncode != 0:
-                logger.error(result.stderr.decode('utf-8').strip())
-                raise CogifyError(result.stderr.decode('utf-8').strip())
-            else:
-                logger.info(result.stderr.decode('utf-8').strip())
-            cogs[variable] = outfile
-        return cogs
+    Only captures variables that are images."""
+    @classmethod
+    def from_nc(cls, file_name: ABIL2FileName, nc: File) -> "Dataset":
+        global_attributes = GlobalAttributes.from_nc(nc)
+        geometry = DatasetGeometry.from_nc(nc, file_name.image_type)
 
-    def _gdal_path(self, path: str, variable: str) -> str:
-        return f"netcdf:{path}:{variable}"
+        asset_variables = [key for key in nc.keys() if len(nc[key].shape) == 2]
+
+        return Dataset(file_name=file_name,
+                       global_attributes=global_attributes,
+                       geometry=geometry,
+                       asset_variables=asset_variables)
