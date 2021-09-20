@@ -41,34 +41,6 @@ class SystemEnvironment(Enum):
     """test system simulated data"""
 
 
-# TODO: Delete
-class ProductionDataSource(Enum):
-    OR = "OR"
-    """operational system real-time data"""
-
-    OT = "OT"
-    """operational system test data"""
-
-    IR = "IR"
-    """test system real-time data"""
-
-    IT = "IT"
-    """test system test data"""
-
-    IP = "IP"
-    """test system playback data"""
-
-    IS = "IS"
-    """test system simulated data"""
-
-    # TODO: Delete
-    REALTIME = "Realtime"
-    SIMULATED = "Simulated"
-    PLAYBACK = "Playback"
-    TEST = "Test"
-    NA = "n/a"
-
-
 class ImageType(Enum):
     FULL_DISK = "F"
     """Full Disk coverage region.
