@@ -34,10 +34,11 @@ class CreateItemTest(CliTestCase):
             jsons = [p for p in os.listdir(tmp_dir) if p.endswith('.json')]
             self.assertEqual(len(jsons), 1)
             path = os.path.join(tmp_dir, jsons[0])
-            item = pystac.read_file(path)
-            cog_data = item.assets["CMI"]
+            item = pystac.Item.from_file(path)
+
+            cog_data = item.assets["CMIP_C02"]
             self.assertTrue(os.path.exists(cog_data.href))
-            cog_dqf = item.assets["DQF"]
+            cog_dqf = item.assets["CMIP_C02_DQF"]
             self.assertTrue(os.path.exists(cog_dqf.href))
         item.validate()
 
@@ -50,10 +51,10 @@ class CreateItemTest(CliTestCase):
             jsons = [p for p in os.listdir(tmp_dir) if p.endswith('.json')]
             self.assertEqual(len(jsons), 1)
             path = os.path.join(tmp_dir, jsons[0])
-            item = pystac.read_file(path)
+            item = pystac.Item.from_file(path)
             for i in range(1, 17):
-                cog_data = item.assets[f"CMI_C{i:02d}"]
+                cog_data = item.assets[f"CMI_C{i:02d}-2km"]
                 self.assertTrue(os.path.exists(cog_data.href))
-                cog_dqf = item.assets[f"DQF_C{i:02d}"]
+                cog_dqf = item.assets[f"CMI_C{i:02d}_DQF-2km"]
                 self.assertTrue(os.path.exists(cog_dqf.href))
         item.validate()

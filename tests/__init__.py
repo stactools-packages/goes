@@ -1,3 +1,6 @@
+import logging
+import sys
+
 from stactools.testing import TestData
 
 CMIP_FILE_NAME = (
@@ -14,6 +17,10 @@ CORRUPT_FILE_NAME = (
 )
 NO_LONG_DESC = (
     "OR_ABI-L2-FDCC-M3_G16_s20173481837220_e20173481839593_c20173481840255.nc")
+
+PC_MCMIP_F = (
+    "OR_ABI-L2-MCMIPF-M3_G16_s20180100500410_e20180100511183_c20180100511270.nc"
+)
 
 EXTERNAL_DATA = {
     CMIP_FILE_NAME: {
@@ -57,6 +64,36 @@ EXTERNAL_DATA = {
         "planetary_computer":
         True,
     },
+    PC_MCMIP_F: {
+        "url":
+        ("https://goeseuwest.blob.core.windows.net/noaa-goes16/"
+         "ABI-L2-MCMIPF/2018/010/05/"
+         "OR_ABI-L2-MCMIPF-M3_G16_s20180100500410_e20180100511183_c20180100511270.nc"
+         ),
+        "planetary_computer":
+        True
+    }
 }
 
 test_data = TestData(__file__, EXTERNAL_DATA)
+
+
+class TestLogging:
+    _set: bool = False
+
+    @staticmethod
+    def setup_logging() -> None:
+        if not TestLogging._set:
+            for package in ["tests", "stactools"]:
+                logger = logging.getLogger(package)
+                logger.setLevel(logging.INFO)
+                formatter = logging.Formatter(
+                    "[%(levelname)s] %(asctime)s - %(message)s")
+
+                ch = logging.StreamHandler(sys.stdout)
+                ch.setLevel(logging.INFO)
+                ch.setFormatter(formatter)
+                logger.addHandler(ch)
+
+
+TestLogging.setup_logging()

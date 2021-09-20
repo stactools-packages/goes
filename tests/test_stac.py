@@ -1,57 +1,57 @@
-import dateutil
+import dataclasses
+from datetime import datetime, timezone
+from tests.test_mpc import MicrosoftPCData
+from typing import List
 import math
 import os.path
 from tempfile import TemporaryDirectory
 import unittest
 
 from shapely.geometry import shape
+import planetary_computer
 from pystac import MediaType
 from pystac.extensions.projection import ProjectionExtension
 from pystac.extensions.eo import EOExtension
 
 from stactools.goes import stac, __version__
-from tests import test_data, CMIP_FILE_NAME, CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME
+from stactools.goes.errors import GOESRProductHrefsError
+from stactools.goes.stac import ProductHrefs
+from stactools.goes.enums import ProductAcronym
+from stactools.goes.file_name import ABIL2FileName
+from tests import (EXTERNAL_DATA, PC_MCMIP_F, test_data, CMIP_FILE_NAME,
+                   CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
 
 
-class CreateItemTest(unittest.TestCase):
+class CreateItemFromHrefTest(unittest.TestCase):
     def test_create_item(self):
         path = test_data.get_external_data(CMIP_FILE_NAME)
-        item = stac.create_item(path)
-        self.assertEqual(
-            item.id,
-            "OR_ABI-L2-CMIPM1-M6C02_G16_s20211231619248_e20211231619306_c20211231619382"
-        )
+        item = stac.create_item_from_href(path)
+
+        self.assertEqual(item.id, "OR_ABI-L2-M1-M6_G16_s20211231619248")
         self.assertTrue(item.geometry)
         self.assertTrue(item.bbox)
-        self.assertEqual(item.datetime,
-                         dateutil.parser.parse("2021-05-03T16:19:38.2Z"))
-        self.assertEqual(item.common_metadata.start_datetime,
-                         dateutil.parser.parse("2021-05-03T16:19:24.8Z"))
-        self.assertEqual(item.common_metadata.end_datetime,
-                         dateutil.parser.parse("2021-05-03T16:19:30.6Z"))
+        self.assertEqual(
+            item.datetime,
+            datetime(2021, 5, 3, 16, 19, 24, 800000, timezone.utc))
+
+        self.assertEqual(item.common_metadata.platform, "GOES-16")
+        self.assertEqual(item.common_metadata.instruments, ["ABI"])
+
         self.assertTrue(
             "https://stac-extensions.github.io/processing/v1.0.0/schema.json"
             in item.stac_extensions)
         self.assertDictEqual(item.properties["processing:software"],
                              {"stactools-goes": __version__})
-        self.assertEqual(item.properties["goes:production-site"], "NSOF")
-        self.assertEqual(item.properties["goes:production-environment"], "OE")
-        self.assertEqual(item.properties["goes:orbital-slot"], "GOES-East")
-        self.assertEqual(item.properties["goes:platform-id"], "G16")
-        self.assertEqual(item.properties["goes:instrument-type"],
-                         "GOES R Series Advanced Baseline Imager")
-        self.assertEqual(item.properties["goes:scene-id"], "Mesoscale")
-        self.assertEqual(item.properties["goes:instrument-id"], "FM1")
-        self.assertEqual(item.properties["goes:timeline-id"], "ABI Mode 6")
-        self.assertEqual(item.properties["goes:production-data-source"],
-                         "Realtime")
-        self.assertEqual(item.properties["goes:id"],
-                         "68870b76-0238-4542-aeb2-a035f93990ed")
+
+        self.assertEqual(item.properties["goes:image-type"], "MESOSCALE")
+        self.assertEqual(item.properties["goes:mode"], "6")
         self.assertEqual(item.properties["goes:mesoscale-image-number"], 1)
 
-        data = item.assets["data"]
+        data = item.assets["CMIP_C02-nc"]
         self.assertEqual(data.href, path)
-        self.assertEqual(data.title, "ABI L2 Cloud and Moisture Imagery")
+        self.assertEqual(
+            data.title,
+            "Cloud and Moisture Imagery reflectance factor - Band 02")
         self.assertEqual(data.media_type, "application/netcdf")
         self.assertEqual(data.roles, ["data"])
 
@@ -77,18 +77,18 @@ class CreateItemTest(unittest.TestCase):
             return href
 
         path = test_data.get_external_data(CMIP_FILE_NAME)
-        _ = stac.create_item(path, modify_href)
+        _ = stac.create_item_from_href(path, modify_href)
         self.assertTrue(did_it)
 
     def test_cog_directory(self):
         path = test_data.get_external_data(CMIP_FILE_NAME)
         with TemporaryDirectory() as tmp_dir:
-            item = stac.create_item(path, cog_directory=tmp_dir)
-            cog_asset = item.assets["CMI"]
+            item = stac.create_item_from_href(path, cog_directory=tmp_dir)
+            cog_asset = item.assets["CMIP_C02"]
             self.assertTrue(os.path.exists(cog_asset.href))
             self.assertEqual(
                 cog_asset.title,
-                "ABI L2+ Cloud and Moisture Imagery reflectance factor")
+                "Cloud and Moisture Imagery reflectance factor - Band 02")
             self.assertEqual(cog_asset.roles, ["data"])
             self.assertEqual(cog_asset.media_type, MediaType.COG)
 
@@ -97,15 +97,16 @@ class CreateItemTest(unittest.TestCase):
             "data-files/"
             "OR_ABI-L2-LSTM2-M6_G16_s20211381700538_e20211381700595_c20211381701211.nc"
         )
-        item = stac.create_item(path)
+        item = stac.create_item_from_href(path)
         self.assertEqual(item.properties["goes:mesoscale-image-number"], 2)
         item.validate()
 
     def test_full_product_geometry(self):
         # https://github.com/stactools-packages/goes/issues/4
         path = test_data.get_external_data(CMIP_FULL_FILE_NAME)
-        item = stac.create_item(path)
-        self.assertEqual(item.properties["goes:mesoscale-image-number"], None)
+        item = stac.create_item_from_href(path)
+        self.assertNotIn("goes:mesoscale-image-number", item.properties)
+        self.assertEqual(item.properties.get("goes:image-type"), "FULL DISK")
         geometry = shape(item.geometry)
         self.assertFalse(math.isnan(geometry.area),
                          f"This geometry has a NaN area: {geometry}")
@@ -113,19 +114,102 @@ class CreateItemTest(unittest.TestCase):
     def test_mcmip_eo(self):
         path = test_data.get_external_data(MCMIP_FILE_NAME)
         with TemporaryDirectory() as tmp_dir:
-            item = stac.create_item(path, cog_directory=tmp_dir)
-            data = item.assets["data"]
+            item = stac.create_item_from_href(path, cog_directory=tmp_dir)
+            data = item.assets["MCMIP-nc"]
             eo = EOExtension.ext(data)
+            assert eo.bands
             self.assertEqual(len(eo.bands), 16)
             for band in eo.bands:
                 self.assertIsNotNone(band.name)
                 self.assertIsNotNone(band.center_wavelength)
-            channels = [f"C{n:02}" for n in range(1, 17)]
-            for channel in channels:
-                cmi = item.assets[f"CMI_{channel}"]
+            for channel in range(1, 17):
+                cmi = item.assets[f"CMI_C{channel:0>2d}-2km"]
                 eo = EOExtension.ext(cmi)
+                assert eo.bands
                 self.assertEqual(len(eo.bands), 1)
-                self.assertEqual(eo.bands[0].name, channel)
-                dqf = item.assets[f"DQF_{channel}"]
+                self.assertEqual(eo.bands[0].name, f"ABI Band {channel}")
+                dqf = item.assets[f"CMI_C{channel:0>2d}_DQF-2km"]
                 eo = EOExtension.ext(dqf)
                 self.assertIsNone(eo.bands)
+
+
+class CreateItemTest(unittest.TestCase):
+    def test_validate_product_hrefs(self):
+        product_hrefs: List[ProductHrefs] = []
+
+        mcmip_path = test_data.get_external_data(PC_MCMIP_F)
+        mcmip_file_name = ABIL2FileName.from_href(mcmip_path)
+
+        product_hrefs.append(ProductHrefs(nc_href=mcmip_path, cog_hrefs=None))
+
+        cmip_name_different_start_date = dataclasses.replace(
+            mcmip_file_name,
+            product=ProductAcronym.CMIP,
+            channel=1,
+            start_time="20180100500416")
+        cmip_path = os.path.join(os.path.dirname(mcmip_path),
+                                 cmip_name_different_start_date.to_str())
+        product_hrefs.append(ProductHrefs(nc_href=cmip_path, cog_hrefs=None))
+        with self.assertRaises(GOESRProductHrefsError):
+            _ = stac.create_item(product_hrefs)
+
+    def test_combined_item(self):
+        product_hrefs: List[ProductHrefs] = []
+
+        mcmip_href = EXTERNAL_DATA[PC_MCMIP_F]['url']
+        mpc_data = MicrosoftPCData(mcmip_href)
+
+        for product in [ProductAcronym.MCMIP, ProductAcronym.FDC]:
+            # Use local path for main netCDF file
+            nc_href = mpc_data.get_nc_href(product)
+            if nc_href == mcmip_href:
+                nc_href = test_data.get_external_data(PC_MCMIP_F)
+            product_hrefs.append(
+                ProductHrefs(nc_href=nc_href,
+                             cog_hrefs=mpc_data.get_cog_hrefs(product)))
+
+        for channel in range(1, 17):
+            product_hrefs.append(
+                ProductHrefs(
+                    nc_href=mpc_data.get_nc_href(ProductAcronym.CMIP, channel),
+                    cog_hrefs=mpc_data.get_cog_hrefs(ProductAcronym.CMIP,
+                                                     channel)))
+
+        item = stac.create_item(product_hrefs,
+                                read_href_modifier=planetary_computer.sign)
+
+        # Ensure all expected assets are there
+
+        expected_assets = set(["MCMIP-nc"])
+        for band_idx in range(1, 17):
+            expected_assets.add(f"CMIP_C{band_idx:0>2d}-nc")
+            expected_assets.add(f"CMI_C{band_idx:0>2d}-2km")
+            expected_assets.add(f"CMI_C{band_idx:0>2d}_DQF-2km")
+            if band_idx in [1, 3, 5]:
+                expected_assets.add(f"CMI_C{band_idx:0>2d}-1km")
+                expected_assets.add(f"CMI_C{band_idx:0>2d}_DQF-1km")
+            if band_idx == 2:
+                expected_assets.add(f"CMI_C{band_idx:0>2d}-0.5km")
+                expected_assets.add(f"CMI_C{band_idx:0>2d}_DQF-0.5km")
+
+        expected_assets.add("FDC-nc")
+        expected_assets.add("FDC_Mask")
+        expected_assets.add("FDC_Temp")
+        expected_assets.add("FDC_Area")
+        expected_assets.add("FDC_Power")
+        expected_assets.add("FDC_DQF")
+
+        self.assertEqual(set(item.assets.keys()), expected_assets)
+
+        # Validate some properties
+
+        # CMIP COG assets with higher resolution should have a different
+        # transform and shape than the one pulled from MCMIP.
+        c2_full_res = item.assets['CMI_C02-0.5km']
+        c5_2km = item.assets['CMI_C05-2km']
+        self.assertNotEqual(
+            ProjectionExtension.ext(c2_full_res).shape,
+            ProjectionExtension.ext(c5_2km).shape)
+
+        # Ensure that the shape isn't set on the asset for assets that should match the item
+        self.assertNotIn('proj:shape', c5_2km.extra_fields)
