@@ -114,7 +114,7 @@ class FDCProduct(Product):
     _VAR_TO_ASSET_PROPS: Dict[str, Dict[str, Any]] = {
         "Mask": {
             "title":
-            "Fire – Hot Spot Characterization: Fire Mask",
+            "Fire - Hot Spot Characterization: Fire Mask",
             "description":
             ("Pixel values in the fire mask image "
              "identify a fire category and diagnostic information associated "
@@ -122,25 +122,25 @@ class FDCProduct(Product):
              "and User Guide linked in the Collection for value meanings.")
         },
         "Temp": {
-            "title": "Fire-Hot Spot Characterization: Fire Temperature",
+            "title": "Fire - Hot Spot Characterization: Fire Temperature",
             "description": "Estimated temperature in Kelvin."
         },
         "Power": {
-            "title": "Fire-Hot Spot Characterization: Fire Radiative Power",
+            "title": "Fire - Hot Spot Characterization: Fire Radiative Power",
             "description": "Estimated radiative power in megawatts."
         },
         "Area": {
-            "title": "Fire-Hot Spot Characterization: Fire Area",
+            "title": "Fire - Hot Spot Characterization: Fire Area",
             "description": "Estimated fire area in square kilometers."
         },
         "DQF": {
-            "title": "Fire-Hot Spot Characterization: data quality flags"
+            "title": "Fire - Hot Spot Characterization: data quality flags"
         }
     }
 
     def __init__(self) -> None:
         acronym = ProductAcronym.FDC
-        title = "Fire (Hot Spot Characterization)"
+        title = "Fire - Hot Spot Characterization"
         description = (
             "Fire mask identifying pixels as one of many fire, non-fire, "
             "and obstructed view categories. In addition, the product consists "
