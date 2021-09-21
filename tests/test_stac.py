@@ -144,6 +144,10 @@ class CreateItemFromHrefTest(unittest.TestCase):
             for asset in item.assets.values():
                 self.assertNotIn("proj:shape", asset.extra_fields)
 
+            # Assert geometry is valid
+            g = shape(item.geometry)
+            self.assertTrue(g.is_valid)
+
 
 class CreateItemTest(unittest.TestCase):
     def test_validate_product_hrefs(self):

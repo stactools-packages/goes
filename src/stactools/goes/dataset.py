@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Sequence
 
 from h5py import File
 from pyproj.crs import ProjectedCRS, GeographicCRS
@@ -16,6 +16,26 @@ from stactools.goes.file_name import ABIL2FileName
 GOES_ELLIPSOID = CustomEllipsoid.from_name("GRS80")
 
 logger = logging.getLogger(__name__)
+
+
+def ensure_no_antimeridian_crossing(geom: Dict[str, Any]) -> None:
+    """Modifies a geometry so that it doesn't cross the antimeridian."""
+    def fn(coords):
+        coords = list(coords)
+        for i in range(0, len(coords)):
+            coord = coords[i]
+            if isinstance(coord[0], Sequence):
+                coords[i] = fn(coord)
+            else:
+                print(coord)
+                x, y = coord
+                if x > 170:
+                    x = (-180 * 2) + x
+
+                coords[i] = [x, y]
+        return coords
+
+    geom['coordinates'] = fn(geom['coordinates'])
 
 
 @dataclass
@@ -47,6 +67,7 @@ class DatasetGeometry:
         ymin = extent.attrs["geospatial_southbound_latitude"][0].item()
         xmax = extent.attrs["geospatial_eastbound_longitude"][0].item()
         ymax = extent.attrs["geospatial_northbound_latitude"][0].item()
+        print([xmin, ymin, xmax, ymax])
         rowcount = len(nc["y"][:])
         colcount = len(nc["x"][:])
         x = nc["x"][:].tolist()
@@ -90,11 +111,14 @@ class DatasetGeometry:
 
             geometry = reproject_geom(crs, "EPSG:4326",
                                       mapping(projection_geometry))
+
         else:
             # Full disk images don't map to espg:4326 well
             # Just use the bbox
             # https://github.com/stactools-packages/goes/issues/4
             geometry = mapping(box(*bbox))
+
+        ensure_no_antimeridian_crossing(geometry)
 
         return DatasetGeometry(projection_wkt2=projection_wkt2,
                                projection_shape=projection_shape,
