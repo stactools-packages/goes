@@ -18,8 +18,8 @@ from stactools.goes.errors import GOESRProductHrefsError
 from stactools.goes.stac import ProductHrefs
 from stactools.goes.enums import ProductAcronym
 from stactools.goes.file_name import ABIL2FileName
-from tests import (EXTERNAL_DATA, PC_MCMIP_F, test_data, CMIP_FILE_NAME,
-                   CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
+from tests import (EXTERNAL_DATA, PC_FDC_C, PC_MCMIP_F, test_data,
+                   CMIP_FILE_NAME, CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
 
 
 class CreateItemFromHrefTest(unittest.TestCase):
@@ -131,6 +131,18 @@ class CreateItemFromHrefTest(unittest.TestCase):
                 dqf = item.assets[f"CMI_C{channel:0>2d}_DQF-2km"]
                 eo = EOExtension.ext(dqf)
                 self.assertIsNone(eo.bands)
+
+    def test_fdc(self):
+        path = test_data.get_external_data(PC_FDC_C)
+        with TemporaryDirectory() as tmp_dir:
+            tmp_dir = "~DATA"
+            item = stac.create_item_from_href(path, cog_directory=tmp_dir)
+            self.assertEqual(item.properties.get("goes:image-type"), "CONUS")
+
+            # All assets have the same shape, so none should have projection info
+            self.assertIn("proj:shape", item.properties)
+            for asset in item.assets.values():
+                self.assertNotIn("proj:shape", asset.extra_fields)
 
 
 class CreateItemTest(unittest.TestCase):

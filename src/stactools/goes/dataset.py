@@ -47,8 +47,8 @@ class DatasetGeometry:
         ymin = extent.attrs["geospatial_southbound_latitude"][0].item()
         xmax = extent.attrs["geospatial_eastbound_longitude"][0].item()
         ymax = extent.attrs["geospatial_northbound_latitude"][0].item()
-        rowcount = len(nc["x"][:])
-        colcount = len(nc["y"][:])
+        rowcount = len(nc["y"][:])
+        colcount = len(nc["x"][:])
         x = nc["x"][:].tolist()
         x_scale = nc["x"].attrs["scale_factor"][0].item()
         x_offset = nc["x"].attrs["add_offset"][0].item()
@@ -74,12 +74,11 @@ class DatasetGeometry:
                     for x in [x[0], x[-1]]]
         y_bounds = [(y_scale * y + y_offset) * satellite_height
                     for y in [y[0], y[-1]]]
-        xres = (x_bounds[1] - x_bounds[0]) / (rowcount - 1)
-        yres = (y_bounds[1] - y_bounds[0]) / (colcount - 1)
+        xres = (x_bounds[1] - x_bounds[0]) / (colcount - 1)
+        yres = (y_bounds[1] - y_bounds[0]) / (rowcount - 1)
 
         projection_transform = [
-            xres, 0, x_bounds[0] - xres / 2, 0, yres, y_bounds[0] - yres / 2,
-            0, 0, 1
+            xres, 0, x_bounds[0] - xres / 2, 0, yres, y_bounds[0] - yres / 2
         ]
         projection_bbox = [x_bounds[0], y_bounds[0], x_bounds[1], y_bounds[1]]
 
