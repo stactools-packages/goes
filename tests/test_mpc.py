@@ -50,7 +50,7 @@ class MicrosoftPCData:
     def get_nc_href(self,
                     product: ProductAcronym,
                     channel: Optional[int] = None) -> str:
-        if product not in self.nc_urls:
+        if (product, channel) not in self.nc_urls:
             parts = [self._get_product_folder(product)]
 
             parts.append(self.folder)
