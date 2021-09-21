@@ -202,8 +202,8 @@ def create_item(product_hrefs: List[ProductHrefs],
                 with rasterio.open(_rhm(cog_href)) as ds:
                     # Shape
                     if ds.shape[0] != projection.shape[0]:
-                        ProjectionExtension.ext(asset).shape = ds.shape
-                        ProjectionExtension.ext(asset).transform = ds.transform
+                        ProjectionExtension.ext(asset).shape = list(ds.shape)
+                        ProjectionExtension.ext(asset).transform = list(ds.transform)
 
                 if "eo:bands" in asset.extra_fields:
                     has_eo = True
