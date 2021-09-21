@@ -2,6 +2,9 @@ FROM stactools-goes:latest
 
 RUN conda install -c conda-forge pandoc
 
-COPY . /src/stactools-goes
+COPY requirements-dev.txt /src/stactools-goes/requirements-dev.txt
 RUN pip install -r /src/stactools-goes/requirements-dev.txt
+
+ENV PYTHONPATH=/src/stactools-goes/src:$PYTHONPATH
+
 WORKDIR /src/stactools-goes
