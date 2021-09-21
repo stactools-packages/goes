@@ -1,3 +1,6 @@
+__version__ = '0.1.5'
+"""Library version"""
+
 import stactools.core
 from .dataset import Dataset
 from .errors import CogifyError
@@ -11,5 +14,3 @@ def register_plugin(registry):
 
 
 __all__ = [Dataset, CogifyError]
-__version__ = '0.1.5'
-"""Library version"""

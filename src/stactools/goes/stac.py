@@ -2,7 +2,6 @@ from dataclasses import dataclass
 import logging
 import re
 import os
-import pkg_resources
 from typing import List, Optional, Dict
 
 import fsspec
@@ -13,8 +12,8 @@ from pystac.extensions.eo import EOExtension
 import rasterio
 
 from stactools.core.io import ReadHrefModifier
+from stactools.goes import cog, __version__
 from stactools.goes.dataset import Dataset
-from stactools.goes import cog
 from stactools.goes.bands import get_channel_resolution
 from stactools.goes.enums import ImageType, PlatformId
 from stactools.goes.errors import GOESRProductHrefsError
@@ -161,9 +160,7 @@ def create_item(product_hrefs: List[ProductHrefs],
 
     item.stac_extensions.append(
         "https://stac-extensions.github.io/processing/v1.0.0/schema.json")
-    item.properties["processing:software"] = {
-        "stactools-goes": pkg_resources.require("stactools-goes")[0].version
-    }
+    item.properties["processing:software"] = {"stactools-goes": __version__}
 
     item.properties["goes:system-environment"] = dataset.file_name.system.value
     item.properties["goes:image-type"] = ImageType.to_stac_value(
