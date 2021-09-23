@@ -166,7 +166,6 @@ def create_item(product_hrefs: List[ProductHrefs],
     item.properties["goes:image-type"] = ImageType.to_stac_value(
         dataset.file_name.image_type)
     item.properties["goes:mode"] = dataset.file_name.mode.value
-    item.properties["goes:platform"] = dataset.file_name.platform.value
     item.properties["goes:processing-level"] = "L2"
     if dataset.file_name.mesoscale_number:
         item.properties["goes:mesoscale-image-number"] = int(
