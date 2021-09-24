@@ -202,7 +202,8 @@ def create_item(product_hrefs: List[ProductHrefs],
                     # Shape
                     if ds.shape[0] != projection.shape[0]:
                         ProjectionExtension.ext(asset).shape = list(ds.shape)
-                        ProjectionExtension.ext(asset).transform = list(ds.transform)
+                        ProjectionExtension.ext(asset).transform = list(
+                            ds.transform)
 
                 if "eo:bands" in asset.extra_fields:
                     has_eo = True
