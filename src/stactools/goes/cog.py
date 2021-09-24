@@ -2,7 +2,7 @@ import logging
 import os
 import subprocess
 from tempfile import TemporaryDirectory
-from typing import Dict
+from typing import Dict, List, Optional
 from urllib.parse import urlparse
 
 import fsspec
@@ -21,16 +21,18 @@ def gdal_path(nc_path: str, variable: str) -> str:
     return f"netcdf:{nc_path}:{variable}"
 
 
-def cogify(
-    nc_href: str,
-    directory: str,
-) -> Dict[str, str]:
+def cogify(nc_href: str,
+           directory: str,
+           variables_to_include: Optional[List[str]] = None) -> Dict[str, str]:
     """Converts a GOES NetCDF file into two or more COGs in the provided output directory.
 
     Returns the cogs as a dict of variable name -> path. If there is just
     one variables and one data quality field, two cogs will be created.
     Compound datasets, e.g. MCMIP, will produce 2
     * n files, were n is the number of subdatasets.
+
+    If variables_to_include is given, COGs will only
+    be created for variables that are in the given list.
     """
     file_name = ABIL2FileName.from_str(os.path.basename(nc_href))
 
@@ -40,6 +42,12 @@ def cogify(
             with File(f) as nc:
                 dataset = Dataset.from_nc(file_name, nc)
         for variable in dataset.asset_variables:
+            if variables_to_include and variable not in variables_to_include:
+                logger.warning(
+                    f"Skipping COG creation for variable {variable}")
+                continue
+
+            logger.info(f"Creating COG for variable {variable}")
             outfile = os.path.join(directory,
                                    file_name.get_cog_file_name(variable))
             infile = gdal_path(path, variable)

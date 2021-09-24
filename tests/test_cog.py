@@ -22,6 +22,20 @@ class CogTest(unittest.TestCase):
                 os.path.basename(dqf_path),
                 os.path.splitext(os.path.basename(path))[0] + "_DQF.tif")
 
+    def test_cogify_subset(self):
+        path = test_data.get_external_data(CMIP_FILE_NAME)
+        with TemporaryDirectory() as directory:
+            cogs = cog.cogify(nc_href=path,
+                              directory=directory,
+                              variables_to_include=['DQF'])
+
+            self.assertNotIn("CMI", cogs)
+
+            dqf_path = cogs["DQF"]
+            self.assertEqual(
+                os.path.basename(dqf_path),
+                os.path.splitext(os.path.basename(path))[0] + "_DQF.tif")
+
     def test_cogify_corrupt(self):
         path = test_data.get_external_data(CORRUPT_FILE_NAME)
         with TemporaryDirectory() as directory:
