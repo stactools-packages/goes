@@ -172,7 +172,7 @@ class LSTProduct(Product):
         title = "Land Surface (Skin) Temperature"
         description = (
             "Pixel values identifying the instantaneous land surface "
-            "skin temperature or surface “radiometric” temperature.")
+            "skin temperature or surface 'radiometric' temperature.")
         image_variables = ["LST", "DQF"]
         super().__init__(acronym, title, description, image_variables)
 
