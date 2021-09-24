@@ -221,14 +221,35 @@ def create_item(
                     file_name, variable)
                 asset = cog_asset_def.create_asset(cog_href)
 
-                # Get COG metadata
-                logger.info(f"Reading COG metadata from from {cog_href}...")
-                with rasterio.open(_rhm(cog_href)) as ds:
-                    # Shape
-                    if ds.shape[0] != projection.shape[0]:
-                        ProjectionExtension.ext(asset).shape = list(ds.shape)
-                        ProjectionExtension.ext(asset).transform = list(
-                            ds.transform)
+                # Determine whether we should check the COG transform
+                # to see if it's different then the Item transform.
+                check_cog_transform = False
+                if product.acronym != token_file_name.product:
+                    if (token_file_name.product == ProductAcronym.MCMIP and
+                        product.acronym == ProductAcronym.CMIP):
+                        # Only CMIP channels 1, 2, 3 and 5 are different
+                        if file_name.channel in [1, 2, 3, 5]:
+                            check_cog_transform = True
+                    else:
+                        check_cog_transform = True
+
+                if check_cog_transform:
+
+                    # Get COG metadata
+                    logger.info(
+                        f"Reading COG metadata from from {cog_href}...")
+
+                    def set_transform_if_needed() -> None:
+                        with rasterio.open(_rhm(cog_href)) as ds:
+                            # Shape
+                            if not projection.shape or ds.shape[
+                                    0] != projection.shape[0]:
+                                ProjectionExtension.ext(asset).shape = list(
+                                    ds.shape)
+                                ProjectionExtension.ext(
+                                    asset).transform = list(ds.transform)
+
+                    with_backoff(set_transform_if_needed)
 
                 if "eo:bands" in asset.extra_fields:
                     has_eo = True
