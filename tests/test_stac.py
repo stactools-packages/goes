@@ -18,7 +18,7 @@ from stactools.goes.errors import GOESRProductHrefsError
 from stactools.goes.stac import ProductHrefs
 from stactools.goes.enums import ProductAcronym
 from stactools.goes.file_name import ABIL2FileName
-from tests import (EXTERNAL_DATA, PC_FDC_C, PC_MCMIP_F, test_data,
+from tests import (EXTERNAL_DATA, PC_FDC_C, PC_MCMIP_C, PC_MCMIP_F, test_data,
                    CMIP_FILE_NAME, CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
 
 
@@ -108,6 +108,17 @@ class CreateItemFromHrefTest(unittest.TestCase):
         self.assertNotIn("goes:mesoscale-image-number", item.properties)
         self.assertEqual(item.properties.get("goes:image-type"), "FULL DISK")
         geometry = shape(item.geometry)
+        self.assertTrue(geometry.is_valid)
+        self.assertFalse(math.isnan(geometry.area),
+                         f"This geometry has a NaN area: {geometry}")
+
+    def test_conus_product_geometry(self):
+        path = test_data.get_external_data(PC_MCMIP_C)
+        item = stac.create_item_from_href(path)
+        self.assertNotIn("goes:mesoscale-image-number", item.properties)
+        self.assertEqual(item.properties.get("goes:image-type"), "CONUS")
+        geometry = shape(item.geometry)
+        self.assertTrue(geometry.is_valid)
         self.assertFalse(math.isnan(geometry.area),
                          f"This geometry has a NaN area: {geometry}")
 

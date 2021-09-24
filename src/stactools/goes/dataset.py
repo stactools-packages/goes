@@ -6,7 +6,7 @@ from h5py import File
 from pyproj.crs import ProjectedCRS, GeographicCRS
 from pyproj.crs.datum import CustomDatum, CustomEllipsoid
 from pyproj.crs.coordinate_operation import GeostationarySatelliteConversion
-from shapely.geometry import mapping, Polygon, box
+from shapely.geometry import mapping, Polygon, box, shape
 
 from stactools.core.projection import reproject_geom
 from stactools.goes.attributes import GlobalAttributes
@@ -103,7 +103,9 @@ class DatasetGeometry:
         ]
         projection_bbox = [x_bounds[0], y_bounds[0], x_bounds[1], y_bounds[1]]
 
-        if image_type != ImageType.FULL_DISK:
+        use_bbox_geom = image_type != ImageType.FULL_DISK
+
+        if not use_bbox_geom:
             projection_geometry = Polygon([(x_bounds[0], y_bounds[0]),
                                            (x_bounds[0], y_bounds[1]),
                                            (x_bounds[1], y_bounds[1]),
@@ -112,13 +114,20 @@ class DatasetGeometry:
             geometry = reproject_geom(crs, "EPSG:4326",
                                       mapping(projection_geometry))
 
-        else:
+            ensure_no_antimeridian_crossing(geometry)
+
+            # Check if there are any infinities in the geom,
+            # if so then just use bbox.
+            shp = shape(geometry)
+            use_bbox_geom = shp.is_valid
+
+        if use_bbox_geom:
             # Full disk images don't map to espg:4326 well
             # Just use the bbox
             # https://github.com/stactools-packages/goes/issues/4
             geometry = mapping(box(*bbox))
 
-        ensure_no_antimeridian_crossing(geometry)
+            ensure_no_antimeridian_crossing(geometry)
 
         return DatasetGeometry(projection_wkt2=projection_wkt2,
                                projection_shape=projection_shape,

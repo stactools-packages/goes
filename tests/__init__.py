@@ -21,7 +21,9 @@ NO_LONG_DESC = (
 PC_MCMIP_F = (
     "OR_ABI-L2-MCMIPF-M3_G16_s20180100500410_e20180100511183_c20180100511270.nc"
 )
-
+PC_MCMIP_C = (
+    "OR_ABI-L2-MCMIPC-M6_G16_s20211451801159_e20211451803532_c20211451804034.nc"
+)
 PC_FDC_C = (
     "OR_ABI-L2-FDCC-M6_G17_s20211451831177_e20211451833549_c20211451834144.nc")
 
@@ -72,6 +74,15 @@ EXTERNAL_DATA = {
         ("https://goeseuwest.blob.core.windows.net/noaa-goes16/"
          "ABI-L2-MCMIPF/2018/010/05/"
          "OR_ABI-L2-MCMIPF-M3_G16_s20180100500410_e20180100511183_c20180100511270.nc"
+         ),
+        "planetary_computer":
+        True
+    },
+    PC_MCMIP_C: {
+        "url":
+        ("https://goeseuwest.blob.core.windows.net/noaa-goes16/"
+         "ABI-L2-MCMIPC/2021/145/18/"
+         "OR_ABI-L2-MCMIPC-M6_G16_s20211451801159_e20211451803532_c20211451804034.nc"
          ),
         "planetary_computer":
         True
