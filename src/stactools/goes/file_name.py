@@ -102,6 +102,13 @@ class ABIL2FileName:
         return cls.from_str(os.path.basename(href))
 
     @classmethod
+    def from_cog_href(cls, href: str) -> "ABIL2FileName":
+        fname = os.path.basename(href)
+        fname = '_'.join(fname.split('_')[:-1])
+        fname += ".nc"
+        return cls.from_str(fname)
+
+    @classmethod
     def product_from_href(cls, href: str) -> "ProductAcronym":
         file_name = cls.from_href(href)
         return file_name.product

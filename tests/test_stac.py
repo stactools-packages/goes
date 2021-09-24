@@ -1,7 +1,7 @@
 import dataclasses
 from datetime import datetime, timezone
 from tests.test_mpc import MicrosoftPCData
-from typing import List
+from typing import Any, Callable, List
 import math
 import os.path
 from tempfile import TemporaryDirectory
@@ -78,6 +78,18 @@ class CreateItemFromHrefTest(unittest.TestCase):
 
         path = test_data.get_external_data(CMIP_FILE_NAME)
         _ = stac.create_item_from_href(path, modify_href)
+        self.assertTrue(did_it)
+
+    def test_backoff_fn(self):
+        did_it = False
+
+        def with_backoff(fn: Callable[[], Any]) -> Any:
+            nonlocal did_it
+            did_it = True
+            return fn()
+
+        path = test_data.get_external_data(CMIP_FILE_NAME)
+        _ = stac.create_item_from_href(path, backoff_func=with_backoff)
         self.assertTrue(did_it)
 
     def test_cog_directory(self):
@@ -183,14 +195,14 @@ class CreateItemTest(unittest.TestCase):
     def test_combined_item(self):
         product_hrefs: List[ProductHrefs] = []
 
-        mcmip_href = EXTERNAL_DATA[PC_MCMIP_F]['url']
+        mcmip_href = EXTERNAL_DATA[PC_MCMIP_C]['url']
         mpc_data = MicrosoftPCData(mcmip_href)
 
         for product in [ProductAcronym.MCMIP, ProductAcronym.FDC]:
             # Use local path for main netCDF file
             nc_href = mpc_data.get_nc_href(product)
             if nc_href == mcmip_href:
-                nc_href = test_data.get_external_data(PC_MCMIP_F)
+                nc_href = test_data.get_external_data(PC_MCMIP_C)
             product_hrefs.append(
                 ProductHrefs(nc_href=nc_href,
                              cog_hrefs=mpc_data.get_cog_hrefs(product)))
@@ -202,8 +214,16 @@ class CreateItemTest(unittest.TestCase):
                     cog_hrefs=mpc_data.get_cog_hrefs(ProductAcronym.CMIP,
                                                      channel)))
 
+        # Check that only CMIP COGs for channel 1, 2, 3, and 5 are read.
+        def read_href_modifier(href: str) -> str:
+            if href.endswith('.tif'):
+                file_name = ABIL2FileName.from_cog_href(href)
+                if file_name.product == ProductAcronym.CMIP:
+                    self.assertTrue(file_name.channel in [1, 2, 3, 5], msg=href)
+            return planetary_computer.sign(href)
+
         item = stac.create_item(product_hrefs,
-                                read_href_modifier=planetary_computer.sign)
+                                read_href_modifier=read_href_modifier)
 
         # Ensure all expected assets are there
 
