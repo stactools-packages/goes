@@ -27,7 +27,6 @@ def ensure_no_antimeridian_crossing(geom: Dict[str, Any]) -> None:
             if isinstance(coord[0], Sequence):
                 coords[i] = fn(coord)
             else:
-                print(coord)
                 x, y = coord
                 if x > 170:
                     x = (-180 * 2) + x
@@ -67,7 +66,7 @@ class DatasetGeometry:
         ymin = extent.attrs["geospatial_southbound_latitude"][0].item()
         xmax = extent.attrs["geospatial_eastbound_longitude"][0].item()
         ymax = extent.attrs["geospatial_northbound_latitude"][0].item()
-        print([xmin, ymin, xmax, ymax])
+
         rowcount = len(nc["y"][:])
         colcount = len(nc["x"][:])
         x = nc["x"][:].tolist()
