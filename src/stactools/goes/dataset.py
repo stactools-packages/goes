@@ -102,7 +102,7 @@ class DatasetGeometry:
         ]
         projection_bbox = [x_bounds[0], y_bounds[0], x_bounds[1], y_bounds[1]]
 
-        use_bbox_geom = image_type != ImageType.FULL_DISK
+        use_bbox_geom = image_type == ImageType.FULL_DISK
 
         if not use_bbox_geom:
             projection_geometry = Polygon([(x_bounds[0], y_bounds[0]),
@@ -118,7 +118,7 @@ class DatasetGeometry:
             # Check if there are any infinities in the geom,
             # if so then just use bbox.
             shp = shape(geometry)
-            use_bbox_geom = shp.is_valid
+            use_bbox_geom = not shp.is_valid
 
         if use_bbox_geom:
             # Full disk images don't map to espg:4326 well
