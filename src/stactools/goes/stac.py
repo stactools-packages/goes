@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import logging
 import re
 import os
-from typing import List, Optional, Dict
+from typing import Callable, List, Optional, Dict, TypeVar
 
 import fsspec
 from h5py import File
@@ -21,6 +21,20 @@ from stactools.goes.file_name import ABIL2FileName
 from stactools.goes.product import PRODUCTS, ProductAcronym
 
 logger = logging.getLogger(__name__)
+
+T = TypeVar("T")
+
+BackoffFunc = Callable[[Callable[[], T]], T]
+"""Defines a backoff function that users can supply
+to perform exponential backoff of reads such as
+rasterio reads.
+
+Backoff functions take a method that returns T, and calls
+it, returning the resulting T. Inside the backoff function
+you can place logic that captures throttling exceptions
+and performs retries, which is useful in highly parallelized
+data processing scenarios.
+"""
 
 
 @dataclass
@@ -124,15 +138,22 @@ def normalize_cmi_cog_assets(item: Item) -> None:
                 item.assets.pop(asset_key)
 
 
-def create_item(product_hrefs: List[ProductHrefs],
-                read_href_modifier: Optional[ReadHrefModifier] = None) -> Item:
+def create_item(
+    product_hrefs: List[ProductHrefs],
+    read_href_modifier: Optional[ReadHrefModifier] = None,
+    backoff_func: Optional[BackoffFunc] = None,
+) -> Item:
     """Creates an Item from GOES-R ABI Level 2 product HREFs.
 
     This method will only read information from the NetCDF file represented in the
     first entry of product_hrefs.
+
+    backoff_func: A backoff function that can be used for exponential backoff
+        of data reading for throttling messages occuring during highly parallelized jobs.
     """
     dataset: Dataset
     _rhm: ReadHrefModifier = read_href_modifier if read_href_modifier is not None else lambda x: x
+    with_backoff = backoff_func if backoff_func else lambda f: f()
 
     if len(product_hrefs) == 0:
         raise GOESRProductHrefsError("product_hrefs cannot be empty.")
@@ -141,10 +162,14 @@ def create_item(product_hrefs: List[ProductHrefs],
     # Grab the first href as a token dataset to derive the common attributes.
     token_nc_href = product_hrefs[0].nc_href
     token_file_name = ABIL2FileName.from_href(token_nc_href)
-    logger.info(f"Reading metadata from {token_nc_href}")
-    with fsspec.open(_rhm(token_nc_href)) as file:
-        with File(file) as nc:
-            dataset = Dataset.from_nc(token_file_name, nc)
+
+    def read_dataset() -> Dataset:
+        logger.info(f"Reading metadata from {token_nc_href}")
+        with fsspec.open(_rhm(token_nc_href)) as file:
+            with File(file) as nc:
+                return Dataset.from_nc(token_file_name, nc)
+
+    dataset = with_backoff(read_dataset)
 
     start_datetime = dataset.global_attributes.start_datetime
 
@@ -221,12 +246,20 @@ def create_item(product_hrefs: List[ProductHrefs],
 def create_item_from_href(
         href: str,
         read_href_modifier: Optional[ReadHrefModifier] = None,
-        cog_directory: Optional[str] = None) -> Item:
-    """Creates a pystac.Item from a GOES netcdf file."""
+        cog_directory: Optional[str] = None,
+        backoff_func: Optional[BackoffFunc] = None) -> Item:
+    """Creates a pystac.Item from a GOES netcdf file.
+
+    cog_directory: The directory COGs will be saved to,
+        if generating COGs.
+    backoff_func: A backoff function that can be used for exponential backoff
+        of data reading for throttling messages occuring during highly parallelized jobs.
+    """
     cogs: Optional[Dict[str, str]] = None
     if cog_directory:
         cogs = cog.cogify(href, cog_directory)
 
     return create_item(
         product_hrefs=[ProductHrefs(nc_href=href, cog_hrefs=cogs)],
-        read_href_modifier=read_href_modifier)
+        read_href_modifier=read_href_modifier,
+        backoff_func=backoff_func)
