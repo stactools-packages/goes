@@ -121,7 +121,7 @@ def normalize_cmi_cog_assets(item: Item) -> None:
                     asset = item.assets[asset_key]
                     asset.title = f"{asset.title} (full resolution)"
                     new_key = asset_key.replace("CMIP",
-                                                "CMI") + f"-{res_in_km}km"
+                                                "CMI") + f"_{res_in_km}km"
                     item.assets[new_key] = asset
                     item.assets.pop(asset_key)
             else:
@@ -134,7 +134,7 @@ def normalize_cmi_cog_assets(item: Item) -> None:
         if ProductAcronym.MCMIP in product_to_asset_keys:
             for asset_key in product_to_asset_keys[ProductAcronym.MCMIP]:
                 asset = item.assets[asset_key]
-                new_key = asset_key.replace("MCMIP", "CMI") + "-2km"
+                new_key = asset_key.replace("MCMIP", "CMI") + "_2km"
                 item.assets[new_key] = asset
                 item.assets.pop(asset_key)
 
@@ -225,35 +225,36 @@ def create_item(
                     file_name, variable)
                 asset = cog_asset_def.create_asset(cog_href)
 
-                # Determine whether we should check the COG transform
-                # to see if it's different then the Item transform.
-                check_cog_transform = False
-                if product.acronym != token_file_name.product:
-                    if (token_file_name.product == ProductAcronym.MCMIP
-                            and product.acronym == ProductAcronym.CMIP):
-                        # Only CMIP channels 1, 2, 3 and 5 are different
-                        if file_name.channel in [1, 2, 3, 5]:
-                            check_cog_transform = True
-                    else:
-                        check_cog_transform = True
+                # Get COG metadata
+                logger.info(f"Reading COG metadata from from {cog_href}...")
 
-                if check_cog_transform:
+                def get_cog_metadata() -> None:
+                    with rasterio.open(_rhm(cog_href)) as ds:
+                        # Set tansform and shape if needed
+                        if not projection.shape or ds.shape[
+                                0] != projection.shape[0]:
+                            ProjectionExtension.ext(asset).shape = list(
+                                ds.shape)
+                            ProjectionExtension.ext(asset).transform = list(
+                                ds.transform)
 
-                    # Get COG metadata
-                    logger.info(
-                        f"Reading COG metadata from from {cog_href}...")
+                        dtypes = {
+                            i: dtype
+                            for i, dtype in zip(ds.indexes, ds.dtypes)
+                        }
+                        dtype = dtypes[1]
 
-                    def set_transform_if_needed() -> None:
-                        with rasterio.open(_rhm(cog_href)) as ds:
-                            # Shape
-                            if not projection.shape or ds.shape[
-                                    0] != projection.shape[0]:
-                                ProjectionExtension.ext(asset).shape = list(
-                                    ds.shape)
-                                ProjectionExtension.ext(
-                                    asset).transform = list(ds.transform)
+                        raster = RasterExtension.ext(asset)
+                        assert raster.bands
+                        band = raster.bands[0]
+                        assert band
+                        band.data_type = dtype
+                        if band.data_type.startswith("float"):
+                            band.nodata = ds.nodata
+                        else:
+                            band.nodata = int(ds.nodata)
 
-                    with_backoff(set_transform_if_needed)
+                with_backoff(get_cog_metadata)
 
                 if "eo:bands" in asset.extra_fields:
                     has_eo = True

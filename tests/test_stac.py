@@ -18,10 +18,8 @@ from stactools.goes.errors import GOESRProductHrefsError
 from stactools.goes.stac import ProductHrefs
 from stactools.goes.enums import ProductAcronym
 from stactools.goes.file_name import ABIL2FileName
-from tests import (EXTERNAL_DATA,
-                   PC_MCMIP_C,
-                   PC_MCMIP_F,  test_data, CMIP_FILE_NAME,
-                   CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
+from tests import (EXTERNAL_DATA, PC_FDC_C, PC_MCMIP_C, PC_MCMIP_F, test_data,
+                   CMIP_FILE_NAME, CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
 
 
 class CreateItemFromHrefTest(unittest.TestCase):
@@ -148,12 +146,12 @@ class CreateItemFromHrefTest(unittest.TestCase):
                 self.assertIsNotNone(band.name)
                 self.assertIsNotNone(band.center_wavelength)
             for channel in range(1, 17):
-                cmi = item.assets[f"CMI_C{channel:0>2d}-2km"]
+                cmi = item.assets[f"CMI_C{channel:0>2d}_2km"]
                 eo = EOExtension.ext(cmi)
                 assert eo.bands
                 self.assertEqual(len(eo.bands), 1)
                 self.assertEqual(eo.bands[0].name, f"ABI Band {channel}")
-                dqf = item.assets[f"CMI_C{channel:0>2d}_DQF-2km"]
+                dqf = item.assets[f"CMI_C{channel:0>2d}_DQF_2km"]
                 eo = EOExtension.ext(dqf)
                 self.assertIsNone(eo.bands)
 
@@ -216,17 +214,8 @@ class CreateItemTest(unittest.TestCase):
                     cog_hrefs=mpc_data.get_cog_hrefs(ProductAcronym.CMIP,
                                                      channel)))
 
-        # Check that only CMIP COGs for channel 1, 2, 3, and 5 are read.
-        def read_href_modifier(href: str) -> str:
-            if href.endswith('.tif'):
-                file_name = ABIL2FileName.from_cog_href(href)
-                if file_name.product == ProductAcronym.CMIP:
-                    self.assertTrue(file_name.channel in [1, 2, 3, 5],
-                                    msg=href)
-            return planetary_computer.sign(href)
-
         item = stac.create_item(product_hrefs,
-                                read_href_modifier=read_href_modifier)
+                                read_href_modifier=planetary_computer.sign)
 
         item.validate()
 
@@ -235,14 +224,14 @@ class CreateItemTest(unittest.TestCase):
         expected_assets = set(["MCMIP-nc"])
         for band_idx in range(1, 17):
             expected_assets.add(f"CMIP_C{band_idx:0>2d}-nc")
-            expected_assets.add(f"CMI_C{band_idx:0>2d}-2km")
-            expected_assets.add(f"CMI_C{band_idx:0>2d}_DQF-2km")
+            expected_assets.add(f"CMI_C{band_idx:0>2d}_2km")
+            expected_assets.add(f"CMI_C{band_idx:0>2d}_DQF_2km")
             if band_idx in [1, 3, 5]:
-                expected_assets.add(f"CMI_C{band_idx:0>2d}-1km")
-                expected_assets.add(f"CMI_C{band_idx:0>2d}_DQF-1km")
+                expected_assets.add(f"CMI_C{band_idx:0>2d}_1km")
+                expected_assets.add(f"CMI_C{band_idx:0>2d}_DQF_1km")
             if band_idx == 2:
-                expected_assets.add(f"CMI_C{band_idx:0>2d}-0.5km")
-                expected_assets.add(f"CMI_C{band_idx:0>2d}_DQF-0.5km")
+                expected_assets.add(f"CMI_C{band_idx:0>2d}_0.5km")
+                expected_assets.add(f"CMI_C{band_idx:0>2d}_DQF_0.5km")
 
         expected_assets.add("FDC-nc")
         expected_assets.add("FDC_Mask")
@@ -257,8 +246,8 @@ class CreateItemTest(unittest.TestCase):
 
         # CMIP COG assets with higher resolution should have a different
         # transform and shape than the one pulled from MCMIP.
-        c2_full_res = item.assets['CMI_C02-0.5km']
-        c5_2km = item.assets['CMI_C05-2km']
+        c2_full_res = item.assets['CMI_C02_0.5km']
+        c5_2km = item.assets['CMI_C05_2km']
         self.assertNotEqual(
             ProjectionExtension.ext(c2_full_res).shape,
             ProjectionExtension.ext(c5_2km).shape)

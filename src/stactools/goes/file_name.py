@@ -103,10 +103,15 @@ class ABIL2FileName:
 
     @classmethod
     def from_cog_href(cls, href: str) -> "ABIL2FileName":
-        fname = os.path.basename(href)
-        fname = '_'.join(fname.split('_')[:-1])
-        fname += ".nc"
-        return cls.from_str(fname)
+        m = re.match(r"(.*c[\d]+)_([^.]+?)\.tif", href)
+        if not m:
+            raise GOESRFileNameError(f"{href} is not a valid Goes COG href")
+        fname = os.path.basename(m.group(1)) + ".nc"
+        try:
+            return cls.from_str(fname)
+        except GOESRFileNameError as e:
+            raise GOESRFileNameError(
+                f"{href} is not a valid Goes COG file name") from e
 
     @classmethod
     def product_from_href(cls, href: str) -> "ProductAcronym":

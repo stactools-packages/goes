@@ -53,8 +53,8 @@ class CreateItemTest(CliTestCase):
             path = os.path.join(tmp_dir, jsons[0])
             item = pystac.Item.from_file(path)
             for i in range(1, 17):
-                cog_data = item.assets[f"CMI_C{i:02d}-2km"]
+                cog_data = item.assets[f"CMI_C{i:02d}_2km"]
                 self.assertTrue(os.path.exists(cog_data.href))
-                cog_dqf = item.assets[f"CMI_C{i:02d}_DQF-2km"]
+                cog_dqf = item.assets[f"CMI_C{i:02d}_DQF_2km"]
                 self.assertTrue(os.path.exists(cog_dqf.href))
         item.validate()
