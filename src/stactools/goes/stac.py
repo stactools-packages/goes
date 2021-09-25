@@ -46,7 +46,7 @@ class ProductHrefs:
     cog_hrefs: Optional[Dict[str, str]]
     """Path to COG data for this product.
 
-    Key is the variable name, value is the path.
+    Key is the variable name, value is the href.
     """
     @staticmethod
     def validate_single_observation(
@@ -229,8 +229,8 @@ def create_item(
                 # to see if it's different then the Item transform.
                 check_cog_transform = False
                 if product.acronym != token_file_name.product:
-                    if (token_file_name.product == ProductAcronym.MCMIP and
-                        product.acronym == ProductAcronym.CMIP):
+                    if (token_file_name.product == ProductAcronym.MCMIP
+                            and product.acronym == ProductAcronym.CMIP):
                         # Only CMIP channels 1, 2, 3 and 5 are different
                         if file_name.channel in [1, 2, 3, 5]:
                             check_cog_transform = True
