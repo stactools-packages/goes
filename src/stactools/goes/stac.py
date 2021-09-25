@@ -9,6 +9,7 @@ from h5py import File
 from pystac import Item
 from pystac.extensions.projection import ProjectionExtension
 from pystac.extensions.eo import EOExtension
+from pystac.extensions.raster import RasterExtension
 import rasterio
 
 from stactools.core.io import ReadHrefModifier
@@ -208,6 +209,7 @@ def create_item(
     # Add assets for products
 
     has_eo = False
+    has_raster = False
 
     for hrefs in product_hrefs:
         file_name = ABIL2FileName.from_str(os.path.basename(hrefs.nc_href))
@@ -216,6 +218,8 @@ def create_item(
         item.add_asset(nc_asset_key, nc_asset_def.create_asset(hrefs.nc_href))
 
         if hrefs.cog_hrefs:
+            has_raster = True
+
             for variable, cog_href in hrefs.cog_hrefs.items():
                 cog_asset_key, cog_asset_def = product.get_cog_asset_def(
                     file_name, variable)
@@ -258,6 +262,8 @@ def create_item(
 
     if has_eo:
         EOExtension.add_to(item)
+    if has_raster:
+        RasterExtension.add_to(item)
 
     normalize_cmi_cog_assets(item)
 

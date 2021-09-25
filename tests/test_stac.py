@@ -18,8 +18,10 @@ from stactools.goes.errors import GOESRProductHrefsError
 from stactools.goes.stac import ProductHrefs
 from stactools.goes.enums import ProductAcronym
 from stactools.goes.file_name import ABIL2FileName
-from tests import (EXTERNAL_DATA, PC_FDC_C, PC_MCMIP_C, PC_MCMIP_F, test_data,
-                   CMIP_FILE_NAME, CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
+from tests import (EXTERNAL_DATA,
+                   PC_MCMIP_C,
+                   PC_MCMIP_F,  test_data, CMIP_FILE_NAME,
+                   CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
 
 
 class CreateItemFromHrefTest(unittest.TestCase):
@@ -219,11 +221,14 @@ class CreateItemTest(unittest.TestCase):
             if href.endswith('.tif'):
                 file_name = ABIL2FileName.from_cog_href(href)
                 if file_name.product == ProductAcronym.CMIP:
-                    self.assertTrue(file_name.channel in [1, 2, 3, 5], msg=href)
+                    self.assertTrue(file_name.channel in [1, 2, 3, 5],
+                                    msg=href)
             return planetary_computer.sign(href)
 
         item = stac.create_item(product_hrefs,
                                 read_href_modifier=read_href_modifier)
+
+        item.validate()
 
         # Ensure all expected assets are there
 
