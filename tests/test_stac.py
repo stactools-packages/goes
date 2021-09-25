@@ -158,7 +158,6 @@ class CreateItemFromHrefTest(unittest.TestCase):
     def test_fdc(self):
         path = test_data.get_external_data(PC_FDC_C)
         with TemporaryDirectory() as tmp_dir:
-            tmp_dir = "~DATA"
             item = stac.create_item_from_href(path, cog_directory=tmp_dir)
             self.assertEqual(item.properties.get("goes:image-type"), "CONUS")
 
