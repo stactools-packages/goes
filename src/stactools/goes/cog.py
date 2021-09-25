@@ -23,6 +23,8 @@ def gdal_path(nc_path: str, variable: str) -> str:
 
 def cogify(nc_href: str,
            directory: str,
+           target_srs: Optional[str] = None,
+           additional_suffix: Optional[str] = None,
            variables_to_include: Optional[List[str]] = None) -> Dict[str, str]:
     """Converts a GOES NetCDF file into two or more COGs in the provided output directory.
 
@@ -50,11 +52,27 @@ def cogify(nc_href: str,
             logger.info(f"Creating COG for variable {variable}")
             outfile = os.path.join(directory,
                                    file_name.get_cog_file_name(variable))
+            if additional_suffix:
+                base, ext = os.path.splitext(outfile)
+                outfile = f"{base}_{additional_suffix}{ext}"
+
             infile = gdal_path(path, variable)
-            args = [
-                "gdal_translate", "-of", "COG", "-co", "compress=deflate",
-                infile, outfile
-            ]
+
+            args = []
+            if target_srs:
+                args.append("gdalwarp")
+            else:
+                args.append("gdal_translate")
+            args.extend([
+                "-of",
+                "COG",
+                "-co",
+                "compress=deflate",
+            ])
+            if target_srs:
+                args.extend(["-t_srs", target_srs])
+            args.extend([infile, outfile])
+
             logger.info(f"Running {args}")
             result = subprocess.run(args, capture_output=True)
             logger.info(result.stdout.decode('utf-8').strip())
@@ -64,6 +82,7 @@ def cogify(nc_href: str,
             else:
                 logger.info(result.stderr.decode('utf-8').strip())
             cogs[variable] = outfile
+
         return cogs
 
     if urlparse(nc_href).scheme:
