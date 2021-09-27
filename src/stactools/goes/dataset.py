@@ -11,6 +11,7 @@ from shapely.geometry import mapping, Polygon, box, shape
 from stactools.core.projection import reproject_geom
 from stactools.goes.attributes import GlobalAttributes
 from stactools.goes.enums import ImageType
+from stactools.goes.errors import GOESInvalidGeometryError
 from stactools.goes.file_name import ABIL2FileName
 
 GOES_ELLIPSOID = CustomEllipsoid.from_name("GRS80")
@@ -73,6 +74,10 @@ class DatasetGeometry:
         ymin = extent.attrs["geospatial_southbound_latitude"][0].item()
         xmax = extent.attrs["geospatial_eastbound_longitude"][0].item()
         ymax = extent.attrs["geospatial_northbound_latitude"][0].item()
+
+        for v in [xmin, ymin, xmax, ymax]:
+            if v == -999.0:
+                raise GOESInvalidGeometryError("Lat/lng value is -999.0")
 
         rowcount = len(nc["y"][:])
         colcount = len(nc["x"][:])

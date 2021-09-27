@@ -48,6 +48,9 @@ PC_MCMIP_F_17 = (
 PC_MCMIP_C = (
     "OR_ABI-L2-MCMIPC-M6_G16_s20211451801159_e20211451803532_c20211451804034.nc"
 )
+PC_MCMIP_M = (
+    "OR_ABI-L2-MCMIPM2-M6_G17_s20200211641555_e20200211642024_c20200211642086.nc"
+)
 PC_RRQPE_F = (
     "OR_ABI-L2-RRQPEF-M6_G17_s20210040310320_e20210040319387_c20210040319489.nc"
 )
@@ -120,6 +123,15 @@ EXTERNAL_DATA = {
          "ABI-L2-MCMIPC/2021/145/18/"
          "OR_ABI-L2-MCMIPC-M6_G16_s20211451801159_e20211451803532_c20211451804034.nc"
          ),
+        "planetary_computer":
+        True
+    },
+    PC_MCMIP_M: {
+        "url":
+        ("https://goeseuwest.blob.core.windows.net/noaa-goes17/"
+          "ABI-L2-MCMIPM/2020/021/16/"
+          "OR_ABI-L2-MCMIPM2-M6_G17_s20200211641555_e20200211642024_c20200211642086.nc"
+          ),
         "planetary_computer":
         True
     },

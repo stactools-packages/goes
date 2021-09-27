@@ -16,3 +16,10 @@ class GOESRAttributeError(Exception):
 class GOESRProductHrefsError(Exception):
     """Errors related to validating ProductHrefs"""
     pass
+
+class GOESInvalidGeometryError(Exception):
+    """Raises when there's an invalid geometry
+
+    E.g. a coordinate is a fill value (-999.0)
+    """
+    pass
