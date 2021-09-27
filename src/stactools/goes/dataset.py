@@ -18,6 +18,14 @@ GOES_ELLIPSOID = CustomEllipsoid.from_name("GRS80")
 logger = logging.getLogger(__name__)
 
 
+def maybe_flip_x_across_antimeridian(x: float) -> float:
+    """Flips a longitude across the antimeridian if needed."""
+    if x > 90:
+        return (-180 * 2) + x
+    else:
+        return x
+
+
 def ensure_no_antimeridian_crossing(geom: Dict[str, Any]) -> None:
     """Modifies a geometry so that it doesn't cross the antimeridian."""
     def fn(coords):
@@ -28,8 +36,7 @@ def ensure_no_antimeridian_crossing(geom: Dict[str, Any]) -> None:
                 coords[i] = fn(coord)
             else:
                 x, y = coord
-                if x > 170:
-                    x = (-180 * 2) + x
+                x = maybe_flip_x_across_antimeridian(x)
 
                 coords[i] = [x, y]
         return coords
@@ -78,7 +85,7 @@ class DatasetGeometry:
 
         # we let GRS80 and WGS84 be ~the same for these purposes, since we're
         # not looking for survey-level precision in these bounds
-        bbox = [xmin, ymin, xmax, ymax]
+        bbox = [maybe_flip_x_across_antimeridian(xmin), ymin, xmax, ymax]
 
         datum = CustomDatum(ellipsoid=GOES_ELLIPSOID)
         conversion = GeostationarySatelliteConversion(

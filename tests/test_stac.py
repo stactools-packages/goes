@@ -7,7 +7,7 @@ import os.path
 from tempfile import TemporaryDirectory
 import unittest
 
-from shapely.geometry import shape
+from shapely.geometry import shape, box
 import planetary_computer
 from pystac import MediaType
 from pystac.extensions.projection import ProjectionExtension
@@ -18,8 +18,21 @@ from stactools.goes.errors import GOESRProductHrefsError
 from stactools.goes.stac import ProductHrefs
 from stactools.goes.enums import ProductAcronym
 from stactools.goes.file_name import ABIL2FileName
-from tests import (EXTERNAL_DATA, PC_FDC_C, PC_MCMIP_C, PC_MCMIP_F, test_data,
-                   CMIP_FILE_NAME, CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
+from tests import (EXTERNAL_DATA, PC_FDC_C, PC_MCMIP_C, PC_MCMIP_F,
+                   PC_MCMIP_F_17, test_data, CMIP_FILE_NAME,
+                   CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
+
+US_CENTER = shape({
+    "type":
+    "Polygon",
+    "coordinates": [[
+        [-101.25, 34.59704151614417],
+        [-88.24218749999999, 34.59704151614417],
+        [-88.24218749999999, 41.244772343082076],
+        [-101.25, 41.244772343082076],
+        [-101.25, 34.59704151614417],
+    ]],
+})
 
 
 class CreateItemFromHrefTest(unittest.TestCase):
@@ -114,15 +127,28 @@ class CreateItemFromHrefTest(unittest.TestCase):
         item.validate()
 
     def test_full_product_geometry(self):
-        # https://github.com/stactools-packages/goes/issues/4
-        path = test_data.get_external_data(CMIP_FULL_FILE_NAME)
-        item = stac.create_item_from_href(path)
-        self.assertNotIn("goes:mesoscale-image-number", item.properties)
-        self.assertEqual(item.properties.get("goes:image-type"), "FULL DISK")
-        geometry = shape(item.geometry)
-        self.assertTrue(geometry.is_valid)
-        self.assertFalse(math.isnan(geometry.area),
-                         f"This geometry has a NaN area: {geometry}")
+        for path in [
+                test_data.get_external_data(CMIP_FULL_FILE_NAME),
+                test_data.get_external_data(PC_MCMIP_F_17)
+        ]:
+            with self.subTest(path):
+
+                item = stac.create_item_from_href(path)
+                self.assertNotIn("goes:mesoscale-image-number",
+                                 item.properties)
+                self.assertEqual(item.properties.get("goes:image-type"),
+                                 "FULL DISK")
+                geometry = shape(item.geometry)
+                self.assertTrue(geometry.is_valid)
+
+                # https://github.com/stactools-packages/goes/issues/4
+                self.assertFalse(math.isnan(geometry.area),
+                                 f"This geometry has a NaN area: {geometry}")
+
+                # Test is in a sane location
+                bbox = box(*item.bbox)
+                self.assertTrue(bbox.covers(geometry))
+                self.assertTrue(geometry.contains(US_CENTER))
 
     def test_conus_product_geometry(self):
         path = test_data.get_external_data(PC_MCMIP_C)
