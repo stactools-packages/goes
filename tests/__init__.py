@@ -129,9 +129,9 @@ EXTERNAL_DATA = {
     PC_MCMIP_M: {
         "url":
         ("https://goeseuwest.blob.core.windows.net/noaa-goes17/"
-          "ABI-L2-MCMIPM/2020/021/16/"
-          "OR_ABI-L2-MCMIPM2-M6_G17_s20200211641555_e20200211642024_c20200211642086.nc"
-          ),
+         "ABI-L2-MCMIPM/2020/021/16/"
+         "OR_ABI-L2-MCMIPM2-M6_G17_s20200211641555_e20200211642024_c20200211642086.nc"
+         ),
         "planetary_computer":
         True
     },

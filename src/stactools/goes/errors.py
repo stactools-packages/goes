@@ -17,6 +17,7 @@ class GOESRProductHrefsError(Exception):
     """Errors related to validating ProductHrefs"""
     pass
 
+
 class GOESInvalidGeometryError(Exception):
     """Raises when there's an invalid geometry
 
