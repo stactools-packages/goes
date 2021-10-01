@@ -14,12 +14,12 @@ from pystac.extensions.projection import ProjectionExtension
 from pystac.extensions.eo import EOExtension
 
 from stactools.goes import stac, __version__
-from stactools.goes.errors import GOESInvalidGeometryError, GOESRProductHrefsError
+from stactools.goes.errors import GOESRProductHrefsError
 from stactools.goes.stac import ProductHrefs
 from stactools.goes.enums import ProductAcronym
 from stactools.goes.file_name import ABIL2FileName
 from tests import (EXTERNAL_DATA, PC_FDC_C, PC_LST_M, PC_MCMIP_C, PC_MCMIP_F,
-                   PC_MCMIP_F_17, PC_MCMIP_M, test_data, CMIP_FILE_NAME,
+                   PC_MCMIP_F_17, test_data, CMIP_FILE_NAME,
                    CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
 
 US_CENTER = shape({
@@ -160,11 +160,6 @@ class CreateItemFromHrefTest(unittest.TestCase):
         self.assertFalse(math.isnan(geometry.area),
                          f"This geometry has a NaN area: {geometry}")
 
-    def test_bad_meso_product_geometry(self):
-        path = test_data.get_external_data(PC_MCMIP_M)
-        with self.assertRaises(GOESInvalidGeometryError):
-            _ = stac.create_item_from_href(path)
-
     def test_mcmip_eo(self):
         path = test_data.get_external_data(MCMIP_FILE_NAME)
         with TemporaryDirectory() as tmp_dir:
@@ -205,7 +200,8 @@ class CreateItemFromHrefTest(unittest.TestCase):
         path = test_data.get_external_data(PC_LST_M)
         with TemporaryDirectory() as tmp_dir:
             item = stac.create_item_from_href(path, cog_directory=tmp_dir)
-            self.assertEqual(item.properties.get("goes:image-type"), "MESOSCALE")
+            self.assertEqual(item.properties.get("goes:image-type"),
+                             "MESOSCALE")
 
             # All assets have the same shape, so none should have projection info
             self.assertIn("proj:shape", item.properties)
