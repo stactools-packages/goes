@@ -75,7 +75,16 @@ class DatasetGeometry:
         xmax = extent.attrs["geospatial_eastbound_longitude"][0].item()
         ymax = extent.attrs["geospatial_northbound_latitude"][0].item()
 
-        for v in [xmin, ymin, xmax, ymax]:
+        # If xmin is -999.0, clip as -180
+        # This happens when the left side of the shot
+        # extends past the curvature of the earth.
+        # Use gdalwarp's behavior in this case
+        # (which sets this to -179.9999443)
+        if xmin == -999.0:
+            xmin = -180.0
+
+        # If others are that clip value, consider a bad geom
+        for v in [ymin, xmax, ymax]:
             if v == -999.0:
                 raise GOESInvalidGeometryError("Lat/lng value is -999.0")
 

@@ -39,6 +39,9 @@ PC_LST_F = (
     "OR_ABI-L2-LSTF-M3_G17_s20190090500381_e20190090511148_c20190090511362.nc")
 PC_LST_C = (
     "OR_ABI-L2-LSTC-M6_G17_s20210040301178_e20210040303551_c20210040304296.nc")
+PC_LST_M = (
+    "OR_ABI-L2-LSTM2-M6_G17_s20211451800593_e20211451801050_c20211451801259.nc"
+)
 PC_MCMIP_F = (
     "OR_ABI-L2-MCMIPF-M3_G16_s20180100500410_e20180100511183_c20180100511270.nc"
 )
@@ -203,6 +206,15 @@ EXTERNAL_DATA = {
         ("https://goeseuwest.blob.core.windows.net/noaa-goes17/"
          "ABI-L2-LSTC/2021/004/03/"
          "OR_ABI-L2-LSTC-M6_G17_s20210040301178_e20210040303551_c20210040304296.nc"
+         ),
+        "planetary_computer":
+        True
+    },
+    PC_LST_M: {
+        "url":
+        ("https://goeseuwest.blob.core.windows.net/noaa-goes17/"
+         "ABI-L2-LSTM/2021/145/18/"
+         "OR_ABI-L2-LSTM2-M6_G17_s20211451800593_e20211451801050_c20211451801259.nc"
          ),
         "planetary_computer":
         True

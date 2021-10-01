@@ -18,7 +18,7 @@ from stactools.goes.errors import GOESInvalidGeometryError, GOESRProductHrefsErr
 from stactools.goes.stac import ProductHrefs
 from stactools.goes.enums import ProductAcronym
 from stactools.goes.file_name import ABIL2FileName
-from tests import (EXTERNAL_DATA, PC_FDC_C, PC_MCMIP_C, PC_MCMIP_F,
+from tests import (EXTERNAL_DATA, PC_FDC_C, PC_LST_M, PC_MCMIP_C, PC_MCMIP_F,
                    PC_MCMIP_F_17, PC_MCMIP_M, test_data, CMIP_FILE_NAME,
                    CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
 
@@ -191,6 +191,21 @@ class CreateItemFromHrefTest(unittest.TestCase):
         with TemporaryDirectory() as tmp_dir:
             item = stac.create_item_from_href(path, cog_directory=tmp_dir)
             self.assertEqual(item.properties.get("goes:image-type"), "CONUS")
+
+            # All assets have the same shape, so none should have projection info
+            self.assertIn("proj:shape", item.properties)
+            for asset in item.assets.values():
+                self.assertNotIn("proj:shape", asset.extra_fields)
+
+            # Assert geometry is valid
+            g = shape(item.geometry)
+            self.assertTrue(g.is_valid)
+
+    def test_lst_m(self):
+        path = test_data.get_external_data(PC_LST_M)
+        with TemporaryDirectory() as tmp_dir:
+            item = stac.create_item_from_href(path, cog_directory=tmp_dir)
+            self.assertEqual(item.properties.get("goes:image-type"), "MESOSCALE")
 
             # All assets have the same shape, so none should have projection info
             self.assertIn("proj:shape", item.properties)
