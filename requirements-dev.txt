@@ -8,3 +8,5 @@ sphinx-click
 sphinxcontrib-fulltoc
 sphinxcontrib-napoleon
 yapf
+azure-storage-blob
+planetary-computer
