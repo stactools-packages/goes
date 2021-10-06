@@ -59,6 +59,9 @@ PC_RRQPE_F = (
 )
 PC_SST_F = (
     "OR_ABI-L2-SSTF-M6_G17_s20193550800326_e20193550859393_c20193550904140.nc")
+INVALID_LAT_LNG = (
+    "OR_ABI-L2-MCMIPM2-M6_G17_s20212742248555_e20212742248555_c20212742249339.nc"
+)
 
 EXTERNAL_DATA = {
     CMIP_FILE_NAME: {
@@ -233,6 +236,15 @@ EXTERNAL_DATA = {
         ("https://goeseuwest.blob.core.windows.net/noaa-goes17/"
          "ABI-L2-SSTF/2019/355/08/"
          "OR_ABI-L2-SSTF-M6_G17_s20193550800326_e20193550859393_c20193550904140.nc"
+         ),
+        "planetary_computer":
+        True
+    },
+    INVALID_LAT_LNG: {
+        "url":
+        ("https://goeseuwest.blob.core.windows.net/noaa-goes17/"
+         "ABI-L2-MCMIPM/2021/274/22/"
+         "OR_ABI-L2-MCMIPM2-M6_G17_s20212742248555_e20212742248555_c20212742249339.nc"
          ),
         "planetary_computer":
         True

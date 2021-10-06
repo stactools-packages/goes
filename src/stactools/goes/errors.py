@@ -24,3 +24,7 @@ class GOESInvalidGeometryError(Exception):
     E.g. a coordinate is a fill value (-999.0)
     """
     pass
+
+
+class GOESMissingExtentError(Exception):
+    """Raised when all four bounds are missing (-999) in the netcdf"""

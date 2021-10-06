@@ -14,13 +14,13 @@ from pystac.extensions.projection import ProjectionExtension
 from pystac.extensions.eo import EOExtension
 
 from stactools.goes import stac, __version__
-from stactools.goes.errors import GOESRProductHrefsError
+from stactools.goes.errors import GOESRProductHrefsError, GOESMissingExtentError
 from stactools.goes.stac import ProductHrefs
 from stactools.goes.enums import ProductAcronym
 from stactools.goes.file_name import ABIL2FileName
-from tests import (EXTERNAL_DATA, PC_FDC_C, PC_LST_M, PC_MCMIP_C, PC_MCMIP_F,
-                   PC_MCMIP_F_17, test_data, CMIP_FILE_NAME,
-                   CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
+from tests import (EXTERNAL_DATA, INVALID_LAT_LNG, PC_FDC_C, PC_LST_M,
+                   PC_MCMIP_C, PC_MCMIP_F, PC_MCMIP_F_17, test_data,
+                   CMIP_FILE_NAME, CMIP_FULL_FILE_NAME, MCMIP_FILE_NAME)
 
 US_CENTER = shape({
     "type":
@@ -211,6 +211,11 @@ class CreateItemFromHrefTest(unittest.TestCase):
             # Assert geometry is valid
             g = shape(item.geometry)
             self.assertTrue(g.is_valid)
+
+    def test_invalid_lat_lng(self):
+        path = test_data.get_external_data(INVALID_LAT_LNG)
+        with self.assertRaises(GOESMissingExtentError):
+            stac.create_item_from_href(path)
 
 
 class CreateItemTest(unittest.TestCase):
