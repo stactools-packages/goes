@@ -1,6 +1,7 @@
-from datetime import datetime as Datetime, timedelta, timezone
-import dateutil.parser
+from datetime import datetime as Datetime
+from datetime import timedelta, timezone
 
+import dateutil.parser
 from h5py import File
 
 from stactools.goes.errors import GOESRAttributeError, GOESRFileNameError
@@ -10,15 +11,17 @@ def get_nc_str_attr(nc: File, attribute: str) -> str:
     v = nc.attrs[attribute]
     if not isinstance(v, bytes):
         raise GOESRAttributeError(
-            f"Attribute {attribute} expected to be bytes, was {type(v)}")
-    return v.decode('utf-8')
+            f"Attribute {attribute} expected to be bytes, was {type(v)}"
+        )
+    return v.decode("utf-8")
 
 
 def get_nc_datetime_attr(nc: File, attribute: str) -> Datetime:
     v = nc.attrs[attribute]
     if not isinstance(v, bytes):
         raise GOESRAttributeError(
-            f"Attribute {attribute} expected to be bytes, was {type(v)}")
+            f"Attribute {attribute} expected to be bytes, was {type(v)}"
+        )
     return dateutil.parser.parse(v)
 
 
