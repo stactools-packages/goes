@@ -7,8 +7,8 @@ from urllib.parse import urlparse
 
 import fsspec
 from h5py import File
-from stactools.goes.dataset import Dataset
 
+from stactools.goes.dataset import Dataset
 from stactools.goes.errors import CogifyError
 from stactools.goes.file_name import ABIL2FileName
 
@@ -21,11 +21,13 @@ def gdal_path(nc_path: str, variable: str) -> str:
     return f"netcdf:{nc_path}:{variable}"
 
 
-def cogify(nc_href: str,
-           directory: str,
-           target_srs: Optional[str] = None,
-           additional_suffix: Optional[str] = None,
-           variables_to_include: Optional[List[str]] = None) -> Dict[str, str]:
+def cogify(
+    nc_href: str,
+    directory: str,
+    target_srs: Optional[str] = None,
+    additional_suffix: Optional[str] = None,
+    variables_to_include: Optional[List[str]] = None,
+) -> Dict[str, str]:
     """Converts a GOES NetCDF file into two or more COGs in the provided output directory.
 
     Returns the cogs as a dict of variable name -> path. If there is just
@@ -40,18 +42,16 @@ def cogify(nc_href: str,
 
     def _cogify(path: str, directory: str) -> Dict[str, str]:
         cogs = {}
-        with open(path, 'rb') as f:
+        with open(path, "rb") as f:
             with File(f) as nc:
                 dataset = Dataset.from_nc(file_name, nc)
         for variable in dataset.asset_variables:
             if variables_to_include and variable not in variables_to_include:
-                logger.warning(
-                    f"Skipping COG creation for variable {variable}")
+                logger.warning(f"Skipping COG creation for variable {variable}")
                 continue
 
             logger.info(f"Creating COG for variable {variable}")
-            outfile = os.path.join(directory,
-                                   file_name.get_cog_file_name(variable))
+            outfile = os.path.join(directory, file_name.get_cog_file_name(variable))
             if additional_suffix:
                 base, ext = os.path.splitext(outfile)
                 outfile = f"{base}_{additional_suffix}{ext}"
@@ -63,24 +63,26 @@ def cogify(nc_href: str,
                 args.append("gdalwarp")
             else:
                 args.append("gdal_translate")
-            args.extend([
-                "-of",
-                "COG",
-                "-co",
-                "compress=deflate",
-            ])
+            args.extend(
+                [
+                    "-of",
+                    "COG",
+                    "-co",
+                    "compress=deflate",
+                ]
+            )
             if target_srs:
                 args.extend(["-t_srs", target_srs])
             args.extend([infile, outfile])
 
             logger.info(f"Running {args}")
             result = subprocess.run(args, capture_output=True)
-            logger.info(result.stdout.decode('utf-8').strip())
+            logger.info(result.stdout.decode("utf-8").strip())
             if result.returncode != 0:
-                logger.error(result.stderr.decode('utf-8').strip())
-                raise CogifyError(result.stderr.decode('utf-8').strip())
+                logger.error(result.stderr.decode("utf-8").strip())
+                raise CogifyError(result.stderr.decode("utf-8").strip())
             else:
-                logger.info(result.stderr.decode('utf-8').strip())
+                logger.info(result.stderr.decode("utf-8").strip())
             cogs[variable] = outfile
 
         return cogs
