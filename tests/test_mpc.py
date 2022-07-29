@@ -16,6 +16,7 @@ GOES_ACCOUNT_URL = f"https://{GOES_STORAGE_ACCOUNT}.blob.core.windows.net"
 GOES_CONTAINERS = {
     PlatformId.G16: "noaa-goes16",
     PlatformId.G17: "noaa-goes17",
+    PlatformId.G18: "noaa-goes18",
 }
 GOES_COG_CONTAINER = "noaa-goes-cogs"
 
@@ -100,10 +101,7 @@ class MicrosoftPCData:
         cog_file_names = PRODUCTS[product].get_cog_file_names(nc_file_name)
 
         path_parts = [GOES_ACCOUNT_URL, GOES_COG_CONTAINER]
-        if nc_file_name.platform == PlatformId.G17:
-            path_parts.append("goes-17")
-        else:
-            path_parts.append("goes-16")
+        path_parts.append(nc_file_name.platform.to_stac_value(nc_file_name.platform).lower())
         path_parts.append(self._get_product_folder(product))
         path_parts.append(self.folder)
 
@@ -115,25 +113,32 @@ class MicrosoftPCData:
 
 class MPCDataTest(unittest.TestCase):
     def test_gets_nc_hrefs(self):
-        mcmip_href = (
-            "https://goeseuwest.blob.core.windows.net/noaa-goes16/"
-            "ABI-L2-MCMIPF/2018/010/05/"
-            "OR_ABI-L2-MCMIPF-M3_G16_s20180100500410_e20180100511183_c20180100511270.nc"
-        )
+        hrefs = [
+            (
+                "https://goeseuwest.blob.core.windows.net/noaa-goes16/"
+                "ABI-L2-MCMIPF/2018/010/05/"
+                "OR_ABI-L2-MCMIPF-M3_G16_s20180100500410_e20180100511183_c20180100511270.nc"
+            ),
+            (
+                "https://goeseuwest.blob.core.windows.net/noaa-goes18/"
+                "ABI-L2-MCMIPF/2022/209/00/"
+                "OR_ABI-L2-MCMIPF-M6_G18_s20222090000172_e20222090009486_c20222090009581.nc"
+            ),
+        ]
+        for mcmip_href in hrefs:
+            mpc_data = MicrosoftPCData(mcmip_href)
 
-        mpc_data = MicrosoftPCData(mcmip_href)
+            # Fetch nc hrefs, ensure no exceptions are raised.
+            _ = mpc_data.get_nc_href(ProductAcronym.FDC)
+            _ = mpc_data.get_nc_href(ProductAcronym.CMIP, channel=2)
 
-        # Fetch nc hrefs, ensure no exceptions are raised.
-        _ = mpc_data.get_nc_href(ProductAcronym.FDC)
-        _ = mpc_data.get_nc_href(ProductAcronym.CMIP, channel=2)
+            # Check COG hrefs exist
+            for cog_href in mpc_data.get_cog_hrefs(ProductAcronym.FDC).values():
+                r = requests.head(planetary_computer.sign(cog_href))
+                r.raise_for_status()
 
-        # Check COG hrefs exist
-        for cog_href in mpc_data.get_cog_hrefs(ProductAcronym.FDC).values():
-            r = requests.head(planetary_computer.sign(cog_href))
-            r.raise_for_status()
-
-        # Check COG hrefs for single channel CMIP
-        for cog_href in mpc_data.get_cog_hrefs(ProductAcronym.CMIP,
-                                               channel=5).values():
-            r = requests.head(planetary_computer.sign(cog_href))
-            r.raise_for_status()
+            # Check COG hrefs for single channel CMIP
+            for cog_href in mpc_data.get_cog_hrefs(ProductAcronym.CMIP,
+                                                   channel=5).values():
+                r = requests.head(planetary_computer.sign(cog_href))
+                r.raise_for_status()
