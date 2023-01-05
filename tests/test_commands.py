@@ -10,6 +10,7 @@ from tests import test_data, CMIP_FILE_NAME, MCMIP_FILE_NAME
 
 
 class CreateItemTest(CliTestCase):
+
     def create_subcommand_functions(self):
         return [create_goes_command]
 

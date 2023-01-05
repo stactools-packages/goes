@@ -4,6 +4,7 @@ from enum import Enum
 class PlatformId(Enum):
     G16 = "G16"
     G17 = "G17"
+    G18 = "G18"
 
     @staticmethod
     def to_stac_value(v: "PlatformId") -> str:
@@ -11,6 +12,8 @@ class PlatformId(Enum):
             return "GOES-16"
         elif v == PlatformId.G17:
             return "GOES-17"
+        elif v == PlatformId.G18:
+            return "GOES-18"
         else:
             return v.value
 
@@ -68,6 +71,7 @@ class ImageType(Enum):
     with a mesoscale product is operator-selected to support high-rate
     temporal analysis of environmental conditions in regions of interest.
     """
+
     @staticmethod
     def to_stac_value(image_type: "ImageType") -> str:
         """Converts a ImageType Enum to the value represented in STAC"""

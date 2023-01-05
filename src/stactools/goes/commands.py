@@ -6,6 +6,7 @@ from stactools.goes import cog
 
 
 def create_goes_command(cli):
+
     @cli.group("goes", short_help="Command for working with GOES data")
     def goes():
         pass

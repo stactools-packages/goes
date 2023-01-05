@@ -36,6 +36,7 @@ US_CENTER = shape({
 
 
 class CreateItemFromHrefTest(unittest.TestCase):
+
     def test_create_item(self):
         path = test_data.get_external_data(CMIP_FILE_NAME)
         item = stac.create_item_from_href(path)
@@ -219,6 +220,7 @@ class CreateItemFromHrefTest(unittest.TestCase):
 
 
 class CreateItemTest(unittest.TestCase):
+
     def test_validate_product_hrefs(self):
         product_hrefs: List[ProductHrefs] = []
 

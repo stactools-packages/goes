@@ -48,6 +48,7 @@ class ProductHrefs:
 
     Key is the variable name, value is the href.
     """
+
     @staticmethod
     def validate_single_observation(
             product_hrefs: List["ProductHrefs"]) -> None:

@@ -29,6 +29,7 @@ def maybe_flip_x_across_antimeridian(x: float) -> float:
 
 def ensure_no_antimeridian_crossing(geom: Dict[str, Any]) -> None:
     """Modifies a geometry so that it doesn't cross the antimeridian."""
+
     def fn(coords):
         coords = list(coords)
         for i in range(0, len(coords)):
@@ -172,6 +173,7 @@ class Dataset:
     """Keys are variable names, values are long description.
 
     Only captures variables that are images."""
+
     @classmethod
     def from_nc(cls, file_name: ABIL2FileName, nc: File) -> "Dataset":
         global_attributes = GlobalAttributes.from_nc(nc)
