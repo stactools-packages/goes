@@ -34,7 +34,7 @@ jobs:
       - name: Set up Conda with Python ${{ matrix.python-version }}
         uses: mamba-org/provision-with-micromamba@main
         with:
-          environment-file: environment.yaml
+          environment-file: environment.yml
           environment-name: stactools-goes
           extra-specs: |
             python=${{ matrix.python-version }}
