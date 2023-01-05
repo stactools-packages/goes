@@ -10,3 +10,4 @@ sphinxcontrib-napoleon
 yapf
 azure-storage-blob
 planetary-computer
+yapf
