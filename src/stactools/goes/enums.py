@@ -71,6 +71,7 @@ class ImageType(Enum):
     with a mesoscale product is operator-selected to support high-rate
     temporal analysis of environmental conditions in regions of interest.
     """
+
     @staticmethod
     def to_stac_value(image_type: "ImageType") -> str:
         """Converts a ImageType Enum to the value represented in STAC"""

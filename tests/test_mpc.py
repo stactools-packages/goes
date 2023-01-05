@@ -31,6 +31,7 @@ class MicrosoftPCData:
     Args:
         nc_href: HREF to a single NetCDF asset. This will define all other paths.
     """
+
     def __init__(self, nc_href: str) -> None:
         self.reference_nc_href = nc_href
         self.reference_file_name = ABIL2FileName.from_href(nc_href)
@@ -114,6 +115,7 @@ class MicrosoftPCData:
 
 
 class MPCDataTest(unittest.TestCase):
+
     def test_gets_nc_hrefs(self):
         mcmip_href = (
             "https://goeseuwest.blob.core.windows.net/noaa-goes16/"

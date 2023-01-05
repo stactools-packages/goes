@@ -28,6 +28,7 @@ TEST_DATA = [
 
 
 class RasterExtensionTest(unittest.TestCase):
+
     def test_raster_values(self):
         for nc_name in TEST_DATA:
             with self.subTest(nc_name):

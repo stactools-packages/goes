@@ -89,37 +89,37 @@ TEST_CASES = [
     TestCase(file_name=(
         "OR_ABI-L2-CMIPM1-M6C01_G18_s20222090000248_e20222090000305_c20222090000360.nc"
     ),
-        expected_result=ABIL2FileName(
-            system=SystemEnvironment.OR,
-            product=ProductAcronym.CMIP,
-            image_type=ImageType.MESOSCALE,
-            mesoscale_number=MesoscaleImageNumber.ONE,
-            mode=Mode.SIX,
-            channel=1,
-            platform=PlatformId.G18,
-            cyclone_id=None,
-            start_time="20222090000248",
-            end_time="20222090000305",
-            created_time="20222090000360")),
+             expected_result=ABIL2FileName(
+                 system=SystemEnvironment.OR,
+                 product=ProductAcronym.CMIP,
+                 image_type=ImageType.MESOSCALE,
+                 mesoscale_number=MesoscaleImageNumber.ONE,
+                 mode=Mode.SIX,
+                 channel=1,
+                 platform=PlatformId.G18,
+                 cyclone_id=None,
+                 start_time="20222090000248",
+                 end_time="20222090000305",
+                 created_time="20222090000360")),
     TestCase(file_name=(
         "OR_ABI-L2-MCMIPF-M6_G18_s20222090000172_e20222090009486_c20222090009581.nc"
     ),
-        expected_result=ABIL2FileName(
-            system=SystemEnvironment.OR,
-            product=ProductAcronym.MCMIP,
-            image_type=ImageType.FULL_DISK,
-            mesoscale_number=None,
-            mode=Mode.SIX,
-            channel=None,
-            platform=PlatformId.G18,
-            cyclone_id=None,
-            start_time="20222090000172",
-            end_time="20222090009486",
-            created_time="20222090009581")),
+             expected_result=ABIL2FileName(system=SystemEnvironment.OR,
+                                           product=ProductAcronym.MCMIP,
+                                           image_type=ImageType.FULL_DISK,
+                                           mesoscale_number=None,
+                                           mode=Mode.SIX,
+                                           channel=None,
+                                           platform=PlatformId.G18,
+                                           cyclone_id=None,
+                                           start_time="20222090000172",
+                                           end_time="20222090009486",
+                                           created_time="20222090009581")),
 ]
 
 
 class ABIL2FileNameTest(unittest.TestCase):
+
     def test_parsing(self):
         for test_case in TEST_CASES:
             file_name = test_case.file_name

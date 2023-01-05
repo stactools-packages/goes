@@ -93,6 +93,7 @@ class ACHAProduct(Product):
     that calculates clear sky radiances, which is then used to compute
     the air temperature at cloud top. Product data is generated both day and night.
     """
+
     def __init__(self) -> None:
         acronym = ProductAcronym.ACHA
         title = "Cloud Top Height"
@@ -200,6 +201,7 @@ class FDCProduct(Product):
 
 
 class LSTProduct(Product):
+
     def __init__(self):
         acronym = ProductAcronym.LST
         title = "Land Surface (Skin) Temperature"
@@ -234,6 +236,7 @@ class LSTProduct(Product):
 
 
 class RRQPEProduct(Product):
+
     def __init__(self):
         acronym = ProductAcronym.RRQPE
         title = "Rainfall Rate - Quantitative Prediction Estimate"
@@ -261,6 +264,7 @@ class RRQPEProduct(Product):
 
 
 class SSTProduct(Product):
+
     def __init__(self):
         acronym = ProductAcronym.SST
         title = "Sea Surface (Skin) Temperature"
@@ -479,6 +483,7 @@ class CMIProduct(Product):
 
 
 class CMIPProduct(CMIProduct):
+
     def __init__(self):
         acronym = ProductAcronym.CMIP
         title = "Cloud and Moisture Imagery - Single channel"
@@ -542,6 +547,7 @@ class CMIPProduct(CMIProduct):
 
 
 class MCMIPProduct(CMIProduct):
+
     def __init__(self):
         acronym = ProductAcronym.MCMIP
         title = "Cloud and Moisture Imagery - Multiband"

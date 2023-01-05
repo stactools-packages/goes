@@ -10,6 +10,7 @@ from tests import CORRUPT_FILE_NAME, test_data, CMIP_FILE_NAME
 
 
 class CogTest(unittest.TestCase):
+
     def test_cogify(self):
         path = test_data.get_external_data(CMIP_FILE_NAME)
         with TemporaryDirectory() as directory:

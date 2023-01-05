@@ -8,6 +8,7 @@ from tests import test_data, CMIP_FILE_NAME
 
 
 class DatasetTest(unittest.TestCase):
+
     def test_spatial_resolution(self):
         path = test_data.get_external_data(CMIP_FILE_NAME)
         file_name = ABIL2FileName.from_href(path)
