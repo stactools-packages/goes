@@ -8,7 +8,7 @@
       "ABI"
     ],
     "processing:software": {
-      "stactools-goes": "0.1.6"
+      "stactools-goes": "0.1.7"
     },
     "goes:system-environment": "OR",
     "goes:image-type": "FULL DISK",
