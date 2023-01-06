@@ -1,0 +1,162 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "OR_ABI-L2-M1-M6_G16_s20211451800267",
+  "properties": {
+    "platform": "GOES-16",
+    "instruments": [
+      "ABI"
+    ],
+    "processing:software": {
+      "stactools-goes": "0.1.6"
+    },
+    "goes:system-environment": "OR",
+    "goes:image-type": "MESOSCALE",
+    "goes:mode": "6",
+    "goes:processing-level": "L2",
+    "goes:mesoscale-image-number": 1,
+    "proj:epsg": null,
+    "proj:wkt2": "PROJCRS[\"undefined\",BASEGEOGCRS[\"undefined\",DATUM[\"undefined\",ELLIPSOID[\"GRS 1980(IUGG, 1980)\",6378137,298.257222101,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8901]]],CONVERSION[\"unknown\",METHOD[\"Geostationary Satellite (Sweep X)\"],PARAMETER[\"Satellite height\",35786023,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",-75,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"(E)\",east,ORDER[1],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]],AXIS[\"(N)\",north,ORDER[2],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]]",
+    "proj:shape": [
+      1000,
+      1000
+    ],
+    "proj:transform": [
+      1002.0086577437705,
+      0,
+      -2565142.210008527,
+      0,
+      -1002.0086577437708,
+      3927873.9439211516
+    ],
+    "proj:bbox": [
+      -2564641.205679655,
+      3927372.9395922795,
+      -1563634.5565936284,
+      2926366.2905062526
+    ],
+    "datetime": "2021-05-25T18:00:26.700000Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -110.39692218041962,
+          41.65877462619304
+        ],
+        [
+          -103.66560204164362,
+          28.788225233345255
+        ],
+        [
+          -91.70173292267445,
+          28.392606091371643
+        ],
+        [
+          -95.01285094441894,
+          40.79704959396939
+        ],
+        [
+          -110.39692218041962,
+          41.65877462619304
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "CMIP_C05": {
+      "href": "./OR_ABI-L2-CMIPM1-M6C05_G16_s20211451800267_e20211451800324_c20211451800393_CMI.tif",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+      "title": "Cloud and Moisture Imagery reflectance factor - Band 05",
+      "goes:end_observation_time": "2021-05-25T18:00:32.400000Z",
+      "eo:bands": [
+        {
+          "name": "ABI Band 5",
+          "common_name": "swir16",
+          "description": "Daytime cloud-top phase and particle size, snow",
+          "center_wavelength": 1.61
+        }
+      ],
+      "raster:bands": [
+        {
+          "nodata": 65535,
+          "spatial_resolution": 1000,
+          "data_type": "uint16"
+        }
+      ],
+      "roles": [
+        "data"
+      ]
+    },
+    "CMIP_C05_DQF": {
+      "href": "./OR_ABI-L2-CMIPM1-M6C05_G16_s20211451800267_e20211451800324_c20211451800393_DQF.tif",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+      "title": "Cloud and Moisture Imagery data quality flags - Band 05",
+      "raster:bands": [
+        {
+          "spatial_resolution": 1000,
+          "data_type": "int8",
+          "nodata": -1
+        }
+      ],
+      "roles": [
+        "quality-mask"
+      ]
+    },
+    "CMIP_C05-nc": {
+      "href": "../../tests/data-files/external/OR_ABI-L2-CMIPM1-M6C05_G16_s20211451800267_e20211451800324_c20211451800393.nc",
+      "type": "application/netcdf",
+      "title": "Cloud and Moisture Imagery reflectance factor - Band 05",
+      "goes:end_observation_time": "2021-05-25T18:00:32.400000Z",
+      "eo:bands": [
+        {
+          "name": "ABI Band 5",
+          "common_name": "swir16",
+          "description": "Daytime cloud-top phase and particle size, snow",
+          "center_wavelength": 1.61
+        }
+      ],
+      "raster:bands": [
+        {
+          "nodata": 65535,
+          "spatial_resolution": 1000,
+          "data_type": "uint16"
+        }
+      ],
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    -110.41133117675781,
+    28.386886596679688,
+    -91.69505310058594,
+    41.6668815612793
+  ],
+  "stac_extensions": [
+    "https://stac-extensions.github.io/processing/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/projection/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/eo/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/raster/v1.1.0/schema.json"
+  ],
+  "collection": "goes-cmi"
+}

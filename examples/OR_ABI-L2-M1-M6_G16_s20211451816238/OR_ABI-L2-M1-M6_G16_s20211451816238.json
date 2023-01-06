@@ -1,0 +1,162 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "OR_ABI-L2-M1-M6_G16_s20211451816238",
+  "properties": {
+    "platform": "GOES-16",
+    "instruments": [
+      "ABI"
+    ],
+    "processing:software": {
+      "stactools-goes": "0.1.6"
+    },
+    "goes:system-environment": "OR",
+    "goes:image-type": "MESOSCALE",
+    "goes:mode": "6",
+    "goes:processing-level": "L2",
+    "goes:mesoscale-image-number": 1,
+    "proj:epsg": null,
+    "proj:wkt2": "PROJCRS[\"undefined\",BASEGEOGCRS[\"undefined\",DATUM[\"undefined\",ELLIPSOID[\"GRS 1980(IUGG, 1980)\",6378137,298.257222101,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8901]]],CONVERSION[\"unknown\",METHOD[\"Geostationary Satellite (Sweep X)\"],PARAMETER[\"Satellite height\",35786023,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",-75,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"(E)\",east,ORDER[1],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]],AXIS[\"(N)\",north,ORDER[2],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]]",
+    "proj:shape": [
+      2000,
+      2000
+    ],
+    "proj:transform": [
+      501.0043288718852,
+      0,
+      -2565142.070267131,
+      0,
+      -501.0043288718852,
+      3927873.8041797555
+    ],
+    "proj:bbox": [
+      -2564891.568102695,
+      3927623.3020153195,
+      -1563383.9146877965,
+      2926115.648600421
+    ],
+    "datetime": "2021-05-25T18:16:23.800000Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -110.40412319796835,
+          41.66282601573053
+        ],
+        [
+          -103.66781820338333,
+          28.785500823351935
+        ],
+        [
+          -91.6983909636973,
+          28.389745235372114
+        ],
+        [
+          -95.01067222247224,
+          40.80043889999041
+        ],
+        [
+          -110.40412319796835,
+          41.66282601573053
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "CMIP_C02": {
+      "href": "./OR_ABI-L2-CMIPM1-M6C02_G16_s20211451816238_e20211451816295_c20211451816361_CMI.tif",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+      "title": "Cloud and Moisture Imagery reflectance factor - Band 02",
+      "goes:end_observation_time": "2021-05-25T18:16:29.500000Z",
+      "eo:bands": [
+        {
+          "name": "ABI Band 2",
+          "common_name": "red",
+          "description": "Daytime clouds, fog, insolation, winds",
+          "center_wavelength": 0.64
+        }
+      ],
+      "raster:bands": [
+        {
+          "nodata": 65535,
+          "spatial_resolution": 500,
+          "data_type": "uint16"
+        }
+      ],
+      "roles": [
+        "data"
+      ]
+    },
+    "CMIP_C02_DQF": {
+      "href": "./OR_ABI-L2-CMIPM1-M6C02_G16_s20211451816238_e20211451816295_c20211451816361_DQF.tif",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+      "title": "Cloud and Moisture Imagery data quality flags - Band 02",
+      "raster:bands": [
+        {
+          "spatial_resolution": 500,
+          "data_type": "int8",
+          "nodata": -1
+        }
+      ],
+      "roles": [
+        "quality-mask"
+      ]
+    },
+    "CMIP_C02-nc": {
+      "href": "../../tests/data-files/external/OR_ABI-L2-CMIPM1-M6C02_G16_s20211451816238_e20211451816295_c20211451816361.nc",
+      "type": "application/netcdf",
+      "title": "Cloud and Moisture Imagery reflectance factor - Band 02",
+      "goes:end_observation_time": "2021-05-25T18:16:29.500000Z",
+      "eo:bands": [
+        {
+          "name": "ABI Band 2",
+          "common_name": "red",
+          "description": "Daytime clouds, fog, insolation, winds",
+          "center_wavelength": 0.64
+        }
+      ],
+      "raster:bands": [
+        {
+          "nodata": 65535,
+          "spatial_resolution": 500,
+          "data_type": "uint16"
+        }
+      ],
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    -110.41133117675781,
+    28.386886596679688,
+    -91.69505310058594,
+    41.6668815612793
+  ],
+  "stac_extensions": [
+    "https://stac-extensions.github.io/processing/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/projection/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/eo/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/raster/v1.1.0/schema.json"
+  ],
+  "collection": "goes-cmi"
+}

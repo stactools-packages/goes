@@ -1,0 +1,162 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "OR_ABI-L2-M1-M6_G16_s20211451811238",
+  "properties": {
+    "platform": "GOES-16",
+    "instruments": [
+      "ABI"
+    ],
+    "processing:software": {
+      "stactools-goes": "0.1.6"
+    },
+    "goes:system-environment": "OR",
+    "goes:image-type": "MESOSCALE",
+    "goes:mode": "6",
+    "goes:processing-level": "L2",
+    "goes:mesoscale-image-number": 1,
+    "proj:epsg": null,
+    "proj:wkt2": "PROJCRS[\"undefined\",BASEGEOGCRS[\"undefined\",DATUM[\"undefined\",ELLIPSOID[\"GRS 1980(IUGG, 1980)\",6378137,298.257222101,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8901]]],CONVERSION[\"unknown\",METHOD[\"Geostationary Satellite (Sweep X)\"],PARAMETER[\"Satellite height\",35786023,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",-75,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"(E)\",east,ORDER[1],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]],AXIS[\"(N)\",north,ORDER[2],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]]",
+    "proj:shape": [
+      500,
+      500
+    ],
+    "proj:transform": [
+      2004.017315487541,
+      0,
+      -2565142.22286467,
+      0,
+      -2004.0173154875406,
+      3927873.9567772946
+    ],
+    "proj:bbox": [
+      -2564140.2142069265,
+      3926871.948119551,
+      -1564135.5737786435,
+      2926867.307691268
+    ],
+    "datetime": "2021-05-25T18:11:23.800000Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -110.38251992282405,
+          41.650669380999055
+        ],
+        [
+          -103.66116534648036,
+          28.793671180255572
+        ],
+        [
+          -91.70841438766104,
+          28.39832521295978
+        ],
+        [
+          -95.01720322850844,
+          40.79026785993676
+        ],
+        [
+          -110.38251992282405,
+          41.650669380999055
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "CMIP_C04": {
+      "href": "./OR_ABI-L2-CMIPM1-M6C04_G16_s20211451811238_e20211451811295_c20211451811353_CMI.tif",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+      "title": "Cloud and Moisture Imagery reflectance factor - Band 04",
+      "goes:end_observation_time": "2021-05-25T18:11:29.500000Z",
+      "eo:bands": [
+        {
+          "name": "ABI Band 4",
+          "common_name": "cirrus",
+          "description": "Daytime cirrus cloud",
+          "center_wavelength": 1.38
+        }
+      ],
+      "raster:bands": [
+        {
+          "nodata": 65535,
+          "spatial_resolution": 2000,
+          "data_type": "uint16"
+        }
+      ],
+      "roles": [
+        "data"
+      ]
+    },
+    "CMIP_C04_DQF": {
+      "href": "./OR_ABI-L2-CMIPM1-M6C04_G16_s20211451811238_e20211451811295_c20211451811353_DQF.tif",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+      "title": "Cloud and Moisture Imagery data quality flags - Band 04",
+      "raster:bands": [
+        {
+          "spatial_resolution": 2000,
+          "data_type": "int8",
+          "nodata": -1
+        }
+      ],
+      "roles": [
+        "quality-mask"
+      ]
+    },
+    "CMIP_C04-nc": {
+      "href": "../../tests/data-files/external/OR_ABI-L2-CMIPM1-M6C04_G16_s20211451811238_e20211451811295_c20211451811353.nc",
+      "type": "application/netcdf",
+      "title": "Cloud and Moisture Imagery reflectance factor - Band 04",
+      "goes:end_observation_time": "2021-05-25T18:11:29.500000Z",
+      "eo:bands": [
+        {
+          "name": "ABI Band 4",
+          "common_name": "cirrus",
+          "description": "Daytime cirrus cloud",
+          "center_wavelength": 1.38
+        }
+      ],
+      "raster:bands": [
+        {
+          "nodata": 65535,
+          "spatial_resolution": 2000,
+          "data_type": "uint16"
+        }
+      ],
+      "roles": [
+        "data"
+      ]
+    }
+  },
+  "bbox": [
+    -110.41133117675781,
+    28.386886596679688,
+    -91.69505310058594,
+    41.6668815612793
+  ],
+  "stac_extensions": [
+    "https://stac-extensions.github.io/processing/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/projection/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/eo/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/raster/v1.1.0/schema.json"
+  ],
+  "collection": "goes-cmi"
+}
