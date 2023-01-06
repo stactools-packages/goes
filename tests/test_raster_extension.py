@@ -1,16 +1,26 @@
-from tempfile import TemporaryDirectory
 import unittest
+from tempfile import TemporaryDirectory
 
 import planetary_computer
 import pystac
-from pystac.extensions.raster import RasterExtension
 import rasterio
+from pystac.extensions.raster import RasterExtension
 
 from stactools.goes import stac
-
-from tests import (PC_CMIP_M_01, PC_CMIP_M_02, PC_CMIP_M_03, PC_CMIP_M_04,
-                   PC_CMIP_M_05, PC_FDC_C, PC_LST_F, PC_MCMIP_C, PC_RRQPE_F,
-                   PC_SST_F, PC_LST_C, test_data)
+from tests import (
+    PC_CMIP_M_01,
+    PC_CMIP_M_02,
+    PC_CMIP_M_03,
+    PC_CMIP_M_04,
+    PC_CMIP_M_05,
+    PC_FDC_C,
+    PC_LST_C,
+    PC_LST_F,
+    PC_MCMIP_C,
+    PC_RRQPE_F,
+    PC_SST_F,
+    test_data,
+)
 
 TEST_DATA = [
     PC_CMIP_M_01,
@@ -33,8 +43,7 @@ class RasterExtensionTest(unittest.TestCase):
             with self.subTest(nc_name):
                 with TemporaryDirectory() as cog_dir:
                     path = test_data.get_external_data(nc_name)
-                    item = stac.create_item_from_href(path,
-                                                      cog_directory=cog_dir)
+                    item = stac.create_item_from_href(path, cog_directory=cog_dir)
 
                     self.assertTrue(RasterExtension.has_extension(item))
 
@@ -51,8 +60,7 @@ class RasterExtensionTest(unittest.TestCase):
                             signed_href = planetary_computer.sign(asset.href)
                             with rasterio.open(signed_href) as ds:
                                 dtypes = {
-                                    i: dtype
-                                    for i, dtype in zip(ds.indexes, ds.dtypes)
+                                    i: dtype for i, dtype in zip(ds.indexes, ds.dtypes)
                                 }
                                 dtype = dtypes[1]
                                 nodata = ds.nodata
@@ -61,9 +69,11 @@ class RasterExtensionTest(unittest.TestCase):
                                 self.assertEqual(float(band.nodata), nodata)
                                 self.assertEqual(band.data_type, str(dtype))
                                 self.assertTrue(
-                                    abs(band.spatial_resolution -
-                                        rough_resolution) < 100,
-                                    msg=(f"KEY {asset_key} "
-                                         f"ACTUAL {rough_resolution}, "
-                                         f"EXPECTED: {band.spatial_resolution}"
-                                         ))
+                                    abs(band.spatial_resolution - rough_resolution)
+                                    < 100,
+                                    msg=(
+                                        f"KEY {asset_key} "
+                                        f"ACTUAL {rough_resolution}, "
+                                        f"EXPECTED: {band.spatial_resolution}"
+                                    ),
+                                )
