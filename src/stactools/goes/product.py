@@ -7,8 +7,8 @@ from pystac.extensions.item_assets import AssetDefinition
 from pystac.utils import datetime_to_str
 
 from stactools.goes.bands import ABI_CHANNEL_BANDS
-from stactools.goes.errors import GOESRAttributeError, GOESRFileNameError
 from stactools.goes.enums import ImageType, ProductAcronym
+from stactools.goes.errors import GOESRAttributeError, GOESRFileNameError
 from stactools.goes.file_name import ABIL2FileName
 
 NETCDF_MEDIA_TYPE = "application/netcdf"
@@ -26,48 +26,52 @@ class Product:
     description: str
     image_variables: List[str]
 
-    def __init__(self, acronym: ProductAcronym, title: str, description: str,
-                 image_variables: List[str]) -> None:
+    def __init__(
+        self,
+        acronym: ProductAcronym,
+        title: str,
+        description: str,
+        image_variables: List[str],
+    ) -> None:
         self.acronym = acronym
         self.title = title
         self.description = description
         self.image_variables = image_variables
 
-    def get_nc_asset_def(
-            self, file_name: ABIL2FileName) -> Tuple[str, AssetDefinition]:
-        return (f"{self.acronym.value}-nc",
-                AssetDefinition({
-                    "title":
-                    self.title,
-                    "description":
-                    self.description,
-                    "type":
-                    NETCDF_MEDIA_TYPE,
+    def get_nc_asset_def(self, file_name: ABIL2FileName) -> Tuple[str, AssetDefinition]:
+        return (
+            f"{self.acronym.value}-nc",
+            AssetDefinition(
+                {
+                    "title": self.title,
+                    "description": self.description,
+                    "type": NETCDF_MEDIA_TYPE,
                     "roles": ["data"],
-                    "goes:end_observation_time":
-                    datetime_to_str(file_name.end_datetime)
-                }))
+                    "goes:end_observation_time": datetime_to_str(
+                        file_name.end_datetime
+                    ),
+                }
+            ),
+        )
 
-    def get_cog_asset_def(self, file_name: ABIL2FileName,
-                          variable: str) -> Tuple[str, AssetDefinition]:
+    def get_cog_asset_def(
+        self, file_name: ABIL2FileName, variable: str
+    ) -> Tuple[str, AssetDefinition]:
         asset_def: Dict[str, Any]
 
         if variable == "DQF":
             asset_key = f"{self.acronym.value}_DQF"
             asset_def = {
                 "title": f"{self.title} - data quality flags",
-                "roles": ["quality-mask"]
+                "roles": ["quality-mask"],
             }
         else:
             asset_key = f"{self.acronym.value}"
             asset_def = {
-                "title":
-                self.title,
-                "description":
-                self.description,
+                "title": self.title,
+                "description": self.description,
                 "roles": ["data"],
-                "goes:end_observation_time":
-                datetime_to_str(file_name.end_datetime)
+                "goes:end_observation_time": datetime_to_str(file_name.end_datetime),
             }
 
         asset_def["type"] = pystac.MediaType.COG
@@ -75,10 +79,7 @@ class Product:
         return (asset_key, AssetDefinition(asset_def))
 
     def get_cog_file_names(self, file_name: ABIL2FileName) -> Dict[str, str]:
-        return {
-            var: file_name.get_cog_file_name(var)
-            for var in self.image_variables
-        }
+        return {var: file_name.get_cog_file_name(var) for var in self.image_variables}
 
 
 # TODO: Encapsulate other products.
@@ -113,63 +114,47 @@ class FDCProduct(Product):
     bands with wavelengths 3.89 and 11.19 um to high temperature sub pixel
     anomalies. Product data is generated both day and night.
     """
+
     _VAR_TO_ASSET_PROPS: Dict[str, Dict[str, Any]] = {
         "Mask": {
-            "title":
-            "Fire - Hot Spot Characterization: Fire Mask",
-            "description":
-            ("Pixel values in the fire mask image "
-             "identify a fire category and diagnostic information associated "
-             "with algorithm execution. See section 5.19.6.1 in the Product Definition "
-             "and User Guide linked in the Collection for value meanings."),
-            "raster:bands": [{
-                "nodata": -99,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            "title": "Fire - Hot Spot Characterization: Fire Mask",
+            "description": (
+                "Pixel values in the fire mask image "
+                "identify a fire category and diagnostic information associated "
+                "with algorithm execution. See section 5.19.6.1 in the Product Definition "
+                "and User Guide linked in the Collection for value meanings."
+            ),
+            "raster:bands": [
+                {"nodata": -99, "spatial_resolution": 2000, "data_type": "int16"}
+            ],
         },
         "Temp": {
-            "title":
-            "Fire - Hot Spot Characterization: Fire Temperature",
-            "description":
-            "Estimated temperature in Kelvin.",
-            "raster:bands": [{
-                "nodata": 65535,
-                "spatial_resolution": 2000,
-                "data_type": "uint16"
-            }]
+            "title": "Fire - Hot Spot Characterization: Fire Temperature",
+            "description": "Estimated temperature in Kelvin.",
+            "raster:bands": [
+                {"nodata": 65535, "spatial_resolution": 2000, "data_type": "uint16"}
+            ],
         },
         "Power": {
-            "title":
-            "Fire - Hot Spot Characterization: Fire Radiative Power",
-            "description":
-            "Estimated radiative power in megawatts.",
-            "raster:bands": [{
-                "nodata": -9.0,
-                "spatial_resolution": 2000,
-                "data_type": "float32"
-            }]
+            "title": "Fire - Hot Spot Characterization: Fire Radiative Power",
+            "description": "Estimated radiative power in megawatts.",
+            "raster:bands": [
+                {"nodata": -9.0, "spatial_resolution": 2000, "data_type": "float32"}
+            ],
         },
         "Area": {
-            "title":
-            "Fire - Hot Spot Characterization: Fire Area",
-            "description":
-            "Estimated fire area in square kilometers.",
-            "raster:bands": [{
-                "nodata": 65535,
-                "spatial_resolution": 2000,
-                "data_type": "uint16"
-            }]
+            "title": "Fire - Hot Spot Characterization: Fire Area",
+            "description": "Estimated fire area in square kilometers.",
+            "raster:bands": [
+                {"nodata": 65535, "spatial_resolution": 2000, "data_type": "uint16"}
+            ],
         },
         "DQF": {
-            "title":
-            "Fire - Hot Spot Characterization: data quality flags",
-            "raster:bands": [{
-                "nodata": 255,
-                "spatial_resolution": 2000,
-                "data_type": "uint8"
-            }]
-        }
+            "title": "Fire - Hot Spot Characterization: data quality flags",
+            "raster:bands": [
+                {"nodata": 255, "spatial_resolution": 2000, "data_type": "uint8"}
+            ],
+        },
     }
 
     def __init__(self) -> None:
@@ -179,13 +164,15 @@ class FDCProduct(Product):
             "Fire mask identifying pixels as one of many fire, non-fire, "
             "and obstructed view categories. In addition, the product consists "
             "of fire temperature, radiative power, and area for valid "
-            "fire pixels that satisfy specific criteria.")
+            "fire pixels that satisfy specific criteria."
+        )
 
         image_variables = ["Mask", "Temp", "Power", "Area", "DQF"]
         super().__init__(acronym, title, description, image_variables)
 
-    def get_cog_asset_def(self, file_name: ABIL2FileName,
-                          variable: str) -> Tuple[str, AssetDefinition]:
+    def get_cog_asset_def(
+        self, file_name: ABIL2FileName, variable: str
+    ) -> Tuple[str, AssetDefinition]:
         asset_key = f"{self.acronym.value}_{variable}"
         asset_def = self._VAR_TO_ASSET_PROPS[variable]
 
@@ -194,25 +181,27 @@ class FDCProduct(Product):
         else:
             asset_def["roles"] = ["data"]
             asset_def["goes:end_observation_time"] = datetime_to_str(
-                file_name.end_datetime)
+                file_name.end_datetime
+            )
         asset_def["type"] = pystac.MediaType.COG
 
         return (asset_key, AssetDefinition(asset_def))
 
 
 class LSTProduct(Product):
-
     def __init__(self):
         acronym = ProductAcronym.LST
         title = "Land Surface (Skin) Temperature"
         description = (
             "Pixel values identifying the instantaneous land surface "
-            "skin temperature or surface 'radiometric' temperature.")
+            "skin temperature or surface 'radiometric' temperature."
+        )
         image_variables = ["LST", "DQF"]
         super().__init__(acronym, title, description, image_variables)
 
-    def get_cog_asset_def(self, file_name: ABIL2FileName,
-                          variable: str) -> Tuple[str, AssetDefinition]:
+    def get_cog_asset_def(
+        self, file_name: ABIL2FileName, variable: str
+    ) -> Tuple[str, AssetDefinition]:
         (asset_key, asset_def) = super().get_cog_asset_def(file_name, variable)
 
         resolution = 2000
@@ -220,75 +209,73 @@ class LSTProduct(Product):
             resolution = 10000
 
         if variable == "DQF":
-            asset_def.properties["raster:bands"] = [{
-                "nodata": 65535,
-                "spatial_resolution": resolution,
-                "data_type": "uint16"
-            }]
+            asset_def.properties["raster:bands"] = [
+                {
+                    "nodata": 65535,
+                    "spatial_resolution": resolution,
+                    "data_type": "uint16",
+                }
+            ]
         else:
-            asset_def.properties["raster:bands"] = [{
-                "nodata": 65535,
-                "spatial_resolution": resolution,
-                "data_type": "uint16"
-            }]
+            asset_def.properties["raster:bands"] = [
+                {
+                    "nodata": 65535,
+                    "spatial_resolution": resolution,
+                    "data_type": "uint16",
+                }
+            ]
 
         return (asset_key, asset_def)
 
 
 class RRQPEProduct(Product):
-
     def __init__(self):
         acronym = ProductAcronym.RRQPE
         title = "Rainfall Rate - Quantitative Prediction Estimate"
-        description = ("Pixel values identifying rainfall rate.")
+        description = "Pixel values identifying rainfall rate."
         image_variables = ["RRQPE", "DQF"]
         super().__init__(acronym, title, description, image_variables)
 
-    def get_cog_asset_def(self, file_name: ABIL2FileName,
-                          variable: str) -> Tuple[str, AssetDefinition]:
+    def get_cog_asset_def(
+        self, file_name: ABIL2FileName, variable: str
+    ) -> Tuple[str, AssetDefinition]:
         (asset_key, asset_def) = super().get_cog_asset_def(file_name, variable)
         if variable == "DQF":
-            asset_def.properties["raster:bands"] = [{
-                "nodata": 255,
-                "spatial_resolution": 2000,
-                "data_type": "uint8"
-            }]
+            asset_def.properties["raster:bands"] = [
+                {"nodata": 255, "spatial_resolution": 2000, "data_type": "uint8"}
+            ]
         else:
-            asset_def.properties["raster:bands"] = [{
-                "nodata": 65535,
-                "spatial_resolution": 2000,
-                "data_type": "uint16"
-            }]
+            asset_def.properties["raster:bands"] = [
+                {"nodata": 65535, "spatial_resolution": 2000, "data_type": "uint16"}
+            ]
 
         return (asset_key, asset_def)
 
 
 class SSTProduct(Product):
-
     def __init__(self):
         acronym = ProductAcronym.SST
         title = "Sea Surface (Skin) Temperature"
-        description = ("Pixel values identifying the variations "
-                       "in temperature of the top 10 um of the sea surface.")
+        description = (
+            "Pixel values identifying the variations "
+            "in temperature of the top 10 um of the sea surface."
+        )
         image_variables = ["SST", "DQF"]
         super().__init__(acronym, title, description, image_variables)
 
-    def get_cog_asset_def(self, file_name: ABIL2FileName,
-                          variable: str) -> Tuple[str, AssetDefinition]:
+    def get_cog_asset_def(
+        self, file_name: ABIL2FileName, variable: str
+    ) -> Tuple[str, AssetDefinition]:
         (asset_key, asset_def) = super().get_cog_asset_def(file_name, variable)
 
         if variable == "DQF":
-            asset_def.properties["raster:bands"] = [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int8"
-            }]
+            asset_def.properties["raster:bands"] = [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int8"}
+            ]
         else:
-            asset_def.properties["raster:bands"] = [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            asset_def.properties["raster:bands"] = [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int16"}
+            ]
 
         return (asset_key, asset_def)
 
@@ -312,264 +299,259 @@ class CMIProduct(Product):
 
     _CHANNEL_TO_ASSET_PROPS: Dict[int, Dict[str, Any]] = {
         1: {
-            "title":
-            "Cloud and Moisture Imagery reflectance factor - Band 01",
+            "title": "Cloud and Moisture Imagery reflectance factor - Band 01",
             "eo:bands": [ABI_CHANNEL_BANDS[1].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 1000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 1000, "data_type": "int16"}
+            ],
         },
         2: {
-            "title":
-            "Cloud and Moisture Imagery reflectance factor - Band 02",
+            "title": "Cloud and Moisture Imagery reflectance factor - Band 02",
             "eo:bands": [ABI_CHANNEL_BANDS[2].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 500,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 500, "data_type": "int16"}
+            ],
         },
         3: {
-            "title":
-            "Cloud and Moisture Imagery reflectance factor - Band 03",
+            "title": "Cloud and Moisture Imagery reflectance factor - Band 03",
             "eo:bands": [ABI_CHANNEL_BANDS[3].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 1000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 1000, "data_type": "int16"}
+            ],
         },
         4: {
-            "title":
-            "Cloud and Moisture Imagery reflectance factor - Band 04",
+            "title": "Cloud and Moisture Imagery reflectance factor - Band 04",
             "eo:bands": [ABI_CHANNEL_BANDS[4].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int16"}
+            ],
         },
         5: {
-            "title":
-            "Cloud and Moisture Imagery reflectance factor - Band 05",
+            "title": "Cloud and Moisture Imagery reflectance factor - Band 05",
             "eo:bands": [ABI_CHANNEL_BANDS[5].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 1000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 1000, "data_type": "int16"}
+            ],
         },
         6: {
-            "title":
-            "Cloud and Moisture Imagery reflectance factor - Band 06",
+            "title": "Cloud and Moisture Imagery reflectance factor - Band 06",
             "eo:bands": [ABI_CHANNEL_BANDS[6].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int16"}
+            ],
         },
         7: {
-            "title":
-            "Cloud and Moisture Imagery brightness temperature at top of atmosphere - Band 07",
+            "title": (
+                "Cloud and Moisture Imagery brightness temperature "
+                "at top of atmosphere - Band 07"
+            ),
             "eo:bands": [ABI_CHANNEL_BANDS[7].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int16"}
+            ],
         },
         8: {
-            "title":
-            "Cloud and Moisture Imagery brightness temperature at top of atmosphere - Band 08",
+            "title": (
+                "Cloud and Moisture Imagery brightness temperature "
+                "at top of atmosphere - Band 08"
+            ),
             "eo:bands": [ABI_CHANNEL_BANDS[8].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int16"}
+            ],
         },
         9: {
-            "title":
-            "Cloud and Moisture Imagery brightness temperature at top of atmosphere - Band 09",
+            "title": (
+                "Cloud and Moisture Imagery brightness temperature "
+                "at top of atmosphere - Band 09"
+            ),
             "eo:bands": [ABI_CHANNEL_BANDS[9].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int16"}
+            ],
         },
         10: {
-            "title":
-            "Cloud and Moisture Imagery brightness temperature at top of atmosphere - Band 10",
+            "title": (
+                "Cloud and Moisture Imagery brightness temperature "
+                "at top of atmosphere - Band 10"
+            ),
             "eo:bands": [ABI_CHANNEL_BANDS[10].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int16"}
+            ],
         },
         11: {
-            "title":
-            "Cloud and Moisture Imagery brightness temperature at top of atmosphere - Band 11",
+            "title": (
+                "Cloud and Moisture Imagery brightness temperature "
+                "at top of atmosphere - Band 11"
+            ),
             "eo:bands": [ABI_CHANNEL_BANDS[11].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int16"}
+            ],
         },
         12: {
-            "title":
-            "Cloud and Moisture Imagery brightness temperature at top of atmosphere - Band 12",
+            "title": (
+                "Cloud and Moisture Imagery brightness temperature "
+                "at top of atmosphere - Band 12"
+            ),
             "eo:bands": [ABI_CHANNEL_BANDS[12].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int16"}
+            ],
         },
         13: {
-            "title":
-            "Cloud and Moisture Imagery brightness temperature at top of atmosphere - Band 13",
+            "title": (
+                "Cloud and Moisture Imagery brightness temperature "
+                "at top of atmosphere - Band 13"
+            ),
             "eo:bands": [ABI_CHANNEL_BANDS[13].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int16"}
+            ],
         },
         14: {
-            "title":
-            "Cloud and Moisture Imagery brightness temperature at top of atmosphere - Band 14",
+            "title": (
+                "Cloud and Moisture Imagery brightness temperature "
+                "at top of atmosphere - Band 14"
+            ),
             "eo:bands": [ABI_CHANNEL_BANDS[14].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int16"}
+            ],
         },
         15: {
-            "title":
-            "Cloud and Moisture Imagery brightness temperature at top of atmosphere - Band 15",
+            "title": (
+                "Cloud and Moisture Imagery brightness temperature "
+                "at top of atmosphere - Band 15"
+            ),
             "eo:bands": [ABI_CHANNEL_BANDS[15].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int16"}
+            ],
         },
         16: {
-            "title":
-            "Cloud and Moisture Imagery brightness temperature at top of atmosphere - Band 16",
+            "title": (
+                "Cloud and Moisture Imagery brightness temperature "
+                "at top of atmosphere - Band 16"
+            ),
             "eo:bands": [ABI_CHANNEL_BANDS[16].to_dict()],
-            "raster:bands": [{
-                "nodata": -1,
-                "spatial_resolution": 2000,
-                "data_type": "int16"
-            }]
+            "raster:bands": [
+                {"nodata": -1, "spatial_resolution": 2000, "data_type": "int16"}
+            ],
         },
     }
 
-    def __init__(self, acronym: ProductAcronym, title: str,
-                 image_variables: List[str]) -> None:
+    def __init__(
+        self, acronym: ProductAcronym, title: str, image_variables: List[str]
+    ) -> None:
         description = (
             "The Cloud and Moisture Imagery product contains one or more Earth-view images with "
             "pixel values identifying 'brightness values' that are scaled to support visual "
-            "analysis.")
+            "analysis."
+        )
         super().__init__(acronym, title, description, image_variables)
 
 
 class CMIPProduct(CMIProduct):
-
     def __init__(self):
         acronym = ProductAcronym.CMIP
         title = "Cloud and Moisture Imagery - Single channel"
         image_variables = ["CMI", "DQF"]
         super().__init__(acronym, title, image_variables)
 
-    def get_nc_asset_def(
-            self, file_name: ABIL2FileName) -> Tuple[str, AssetDefinition]:
+    def get_nc_asset_def(self, file_name: ABIL2FileName) -> Tuple[str, AssetDefinition]:
         if file_name.channel is None:
             raise GOESRFileNameError(
-                f"CMIP file name {file_name} has no channel index.")
-        return (f"{self.acronym.value}_C{file_name.channel:0>2d}-nc",
-                AssetDefinition({
-                    "title":
-                    f"{self.title} (Band {file_name.channel:0>2d})",
-                    "type":
-                    NETCDF_MEDIA_TYPE,
+                f"CMIP file name {file_name} has no channel index."
+            )
+        return (
+            f"{self.acronym.value}_C{file_name.channel:0>2d}-nc",
+            AssetDefinition(
+                {
+                    "title": f"{self.title} (Band {file_name.channel:0>2d})",
+                    "type": NETCDF_MEDIA_TYPE,
                     "roles": ["data"],
-                    "goes:end_observation_time":
-                    datetime_to_str(file_name.end_datetime),
+                    "goes:end_observation_time": datetime_to_str(
+                        file_name.end_datetime
+                    ),
                     **self._CHANNEL_TO_ASSET_PROPS[file_name.channel],
-                }))
+                }
+            ),
+        )
 
-    def get_cog_asset_def(self, file_name: ABIL2FileName,
-                          variable: str) -> Tuple[str, AssetDefinition]:
+    def get_cog_asset_def(
+        self, file_name: ABIL2FileName, variable: str
+    ) -> Tuple[str, AssetDefinition]:
         if file_name.channel is None:
             raise GOESRFileNameError(
-                f"CMIP file name {file_name} has no channel index.")
+                f"CMIP file name {file_name} has no channel index."
+            )
 
         channel_props = self._CHANNEL_TO_ASSET_PROPS[file_name.channel]
 
         if variable == "DQF":
             return (
                 f"{self.acronym.value}_C{file_name.channel:0>2d}_DQF",
-                AssetDefinition({
-                    "title":
-                    ("Cloud and Moisture Imagery data quality flags - "
-                     f"Band {file_name.channel:0>2d}"),
-                    "type":
-                    pystac.MediaType.COG,
-                    "roles": ["quality-mask"],
-                    "raster:bands": [{
-                        "spatial_resolution":
-                        channel_props["raster:bands"][0]["spatial_resolution"],
-                        "data_type":
-                        "int8",
-                        "nodata":
-                        -1.0
-                    }]
-                }))
+                AssetDefinition(
+                    {
+                        "title": (
+                            "Cloud and Moisture Imagery data quality flags - "
+                            f"Band {file_name.channel:0>2d}"
+                        ),
+                        "type": pystac.MediaType.COG,
+                        "roles": ["quality-mask"],
+                        "raster:bands": [
+                            {
+                                "spatial_resolution": channel_props["raster:bands"][0][
+                                    "spatial_resolution"
+                                ],
+                                "data_type": "int8",
+                                "nodata": -1.0,
+                            }
+                        ],
+                    }
+                ),
+            )
         else:
-            return (f"{self.acronym.value}_C{file_name.channel:0>2d}",
-                    AssetDefinition({
-                        "type":
-                        pystac.MediaType.COG,
+            return (
+                f"{self.acronym.value}_C{file_name.channel:0>2d}",
+                AssetDefinition(
+                    {
+                        "type": pystac.MediaType.COG,
                         "roles": ["data"],
-                        "goes:end_observation_time":
-                        datetime_to_str(file_name.end_datetime),
-                        **channel_props
-                    }))
+                        "goes:end_observation_time": datetime_to_str(
+                            file_name.end_datetime
+                        ),
+                        **channel_props,
+                    }
+                ),
+            )
 
 
 class MCMIPProduct(CMIProduct):
-
     def __init__(self):
         acronym = ProductAcronym.MCMIP
         title = "Cloud and Moisture Imagery - Multiband"
-        image_variables = ([f"CMI_C{i:0>2d}" for i in range(1, 17)] +
-                           [f"DQF_C{i:0>2d}" for i in range(1, 17)])
+        image_variables = [f"CMI_C{i:0>2d}" for i in range(1, 17)] + [
+            f"DQF_C{i:0>2d}" for i in range(1, 17)
+        ]
         super().__init__(acronym, title, image_variables)
 
-    def get_nc_asset_def(
-            self, file_name: ABIL2FileName) -> Tuple[str, AssetDefinition]:
+    def get_nc_asset_def(self, file_name: ABIL2FileName) -> Tuple[str, AssetDefinition]:
         (asset_key, asset_def) = super().get_nc_asset_def(file_name)
         asset_def.properties["eo:bands"] = [
             b.to_dict() for b in ABI_CHANNEL_BANDS.values()
         ]
         return (asset_key, asset_def)
 
-    def get_cog_asset_def(self, file_name: ABIL2FileName,
-                          variable: str) -> Tuple[str, AssetDefinition]:
+    def get_cog_asset_def(
+        self, file_name: ABIL2FileName, variable: str
+    ) -> Tuple[str, AssetDefinition]:
         try:
-            channel = int(variable.split('_')[1][-2:])
+            channel = int(variable.split("_")[1][-2:])
         except Exception as e:
-            raise GOESRAttributeError(
-                f"Unexpected MCMIP attribute: {variable}") from e
+            raise GOESRAttributeError(f"Unexpected MCMIP attribute: {variable}") from e
 
         channel_props = deepcopy(self._CHANNEL_TO_ASSET_PROPS[channel])
         channel_props["raster:bands"][0]["spatial_resolution"] = 2000
@@ -577,26 +559,36 @@ class MCMIPProduct(CMIProduct):
         if variable.startswith("DQF"):
             return (
                 f"{self.acronym.value}_C{channel:0>2d}_DQF",
-                AssetDefinition({
-                    "title":
-                    f"Cloud and Moisture Imagery data quality flags - Band {channel:0>2d}",
-                    "type":
-                    pystac.MediaType.COG,
-                    "raster:bands": [{
-                        "spatial_resolution": 2000,
-                        "data_type": "int8",
-                        "nodata": -1.0
-                    }]
-                }))
+                AssetDefinition(
+                    {
+                        "title": (
+                            "Cloud and Moisture Imagery data "
+                            f"quality flags - Band {channel:0>2d}"
+                        ),
+                        "type": pystac.MediaType.COG,
+                        "raster:bands": [
+                            {
+                                "spatial_resolution": 2000,
+                                "data_type": "int8",
+                                "nodata": -1.0,
+                            }
+                        ],
+                    }
+                ),
+            )
         else:
-            return (f"{self.acronym.value}_C{channel:0>2d}",
-                    AssetDefinition({
-                        "type":
-                        pystac.MediaType.COG,
-                        "goes:end_observation_time":
-                        datetime_to_str(file_name.end_datetime),
-                        **channel_props
-                    }))
+            return (
+                f"{self.acronym.value}_C{channel:0>2d}",
+                AssetDefinition(
+                    {
+                        "type": pystac.MediaType.COG,
+                        "goes:end_observation_time": datetime_to_str(
+                            file_name.end_datetime
+                        ),
+                        **channel_props,
+                    }
+                ),
+            )
 
 
 PRODUCTS: Dict[ProductAcronym, Product] = {
@@ -608,6 +600,6 @@ PRODUCTS: Dict[ProductAcronym, Product] = {
         RRQPEProduct(),
         SSTProduct(),
         CMIPProduct(),
-        MCMIPProduct()
+        MCMIPProduct(),
     ]
 }

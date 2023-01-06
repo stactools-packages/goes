@@ -1,11 +1,11 @@
+import unittest
 from typing import Dict, Optional, Tuple
 from urllib.parse import urlparse
-import unittest
 
-from azure.storage.blob import BlobServiceClient
 import planetary_computer
-from planetary_computer.sas import get_token
 import requests
+from azure.storage.blob import BlobServiceClient
+from planetary_computer.sas import get_token
 
 from stactools.goes.enums import PlatformId, ProductAcronym
 from stactools.goes.file_name import ABIL2FileName
@@ -38,19 +38,21 @@ class MicrosoftPCData:
         self.nc_container = GOES_CONTAINERS[self.reference_file_name.platform]
 
         parsed_url = urlparse(nc_href)
-        self.folder = '/'.join(parsed_url.path.split('/')[3:6])
+        self.folder = "/".join(parsed_url.path.split("/")[3:6])
 
         self.nc_urls: Dict[Tuple[ProductAcronym, Optional[int]], str] = {
-            (self.reference_file_name.product, self.reference_file_name.channel):
-            nc_href
+            (
+                self.reference_file_name.product,
+                self.reference_file_name.channel,
+            ): nc_href
         }
 
     def _get_product_folder(self, product: ProductAcronym) -> str:
         return f"ABI-L2-{product.value}{self.reference_file_name.image_type.value}"
 
-    def get_nc_href(self,
-                    product: ProductAcronym,
-                    channel: Optional[int] = None) -> str:
+    def get_nc_href(
+        self, product: ProductAcronym, channel: Optional[int] = None
+    ) -> str:
         if (product, channel) not in self.nc_urls:
             parts = [self._get_product_folder(product)]
 
@@ -58,44 +60,43 @@ class MicrosoftPCData:
 
             if channel:
                 parts.append(
-                    self.reference_file_name.get_channel_file_prefix(
-                        product, channel))
+                    self.reference_file_name.get_channel_file_prefix(product, channel)
+                )
             else:
-                parts.append(
-                    self.reference_file_name.get_product_file_prefix(product))
+                parts.append(self.reference_file_name.get_product_file_prefix(product))
 
-            prefix = '/'.join(parts)
+            prefix = "/".join(parts)
 
-            sas_token = get_token(GOES_STORAGE_ACCOUNT,
-                                  self.nc_container).token
+            sas_token = get_token(GOES_STORAGE_ACCOUNT, self.nc_container).token
 
-            with BlobServiceClient(account_url=GOES_ACCOUNT_URL,
-                                   credential=sas_token) as client:
-                with client.get_container_client(
-                        self.nc_container) as container:
+            with BlobServiceClient(
+                account_url=GOES_ACCOUNT_URL, credential=sas_token
+            ) as client:
+                with client.get_container_client(self.nc_container) as container:
                     blobs = [
-                        b.name
-                        for b in container.list_blobs(name_starts_with=prefix)
+                        b.name for b in container.list_blobs(name_starts_with=prefix)
                     ]
                     if len(blobs) == 0:
                         raise MPCDataError(
                             f"No netCDF file found for product {product.value} "
                             f"based on {self.reference_nc_href} "
-                            f"(prefix {prefix})")
+                            f"(prefix {prefix})"
+                        )
                     if len(blobs) > 1:
                         raise MPCDataError(
                             f"More than 1 file found for product {product.value} "
                             f"based on {self.reference_nc_href}: "
-                            f"{','.join(blobs)}")
-                    self.nc_urls[(
-                        product, channel
-                    )] = f"{GOES_ACCOUNT_URL}/{self.nc_container}/{blobs[0]}"
+                            f"{','.join(blobs)}"
+                        )
+                    self.nc_urls[
+                        (product, channel)
+                    ] = f"{GOES_ACCOUNT_URL}/{self.nc_container}/{blobs[0]}"
 
         return self.nc_urls[(product, channel)]
 
-    def get_cog_hrefs(self,
-                      product: ProductAcronym,
-                      channel: Optional[int] = None) -> Dict[str, str]:
+    def get_cog_hrefs(
+        self, product: ProductAcronym, channel: Optional[int] = None
+    ) -> Dict[str, str]:
         nc_href = self.get_nc_href(product, channel=channel)
         nc_file_name = ABIL2FileName.from_href(nc_href)
         cog_file_names = PRODUCTS[product].get_cog_file_names(nc_file_name)
@@ -109,13 +110,12 @@ class MicrosoftPCData:
         path_parts.append(self.folder)
 
         return {
-            var: '/'.join(path_parts + [cog_file_name])
+            var: "/".join(path_parts + [cog_file_name])
             for var, cog_file_name in cog_file_names.items()
         }
 
 
 class MPCDataTest(unittest.TestCase):
-
     def test_gets_nc_hrefs(self):
         mcmip_href = (
             "https://goeseuwest.blob.core.windows.net/noaa-goes16/"
@@ -135,7 +135,6 @@ class MPCDataTest(unittest.TestCase):
             r.raise_for_status()
 
         # Check COG hrefs for single channel CMIP
-        for cog_href in mpc_data.get_cog_hrefs(ProductAcronym.CMIP,
-                                               channel=5).values():
+        for cog_href in mpc_data.get_cog_hrefs(ProductAcronym.CMIP, channel=5).values():
             r = requests.head(planetary_computer.sign(cog_href))
             r.raise_for_status()

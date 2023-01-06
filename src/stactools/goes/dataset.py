@@ -1,14 +1,14 @@
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 from typing import Any, Dict, List, Sequence
 
 from h5py import File
-from pyproj.crs import ProjectedCRS, GeographicCRS
-from pyproj.crs.datum import CustomDatum, CustomEllipsoid
+from pyproj.crs import GeographicCRS, ProjectedCRS
 from pyproj.crs.coordinate_operation import GeostationarySatelliteConversion
-from shapely.geometry import mapping, Polygon, box, shape
-
+from pyproj.crs.datum import CustomDatum, CustomEllipsoid
+from shapely.geometry import Polygon, box, mapping, shape
 from stactools.core.projection import reproject_geom
+
 from stactools.goes.attributes import GlobalAttributes
 from stactools.goes.enums import ImageType
 from stactools.goes.errors import GOESInvalidGeometryError, GOESMissingExtentError
@@ -43,7 +43,7 @@ def ensure_no_antimeridian_crossing(geom: Dict[str, Any]) -> None:
                 coords[i] = [x, y]
         return coords
 
-    geom['coordinates'] = fn(geom['coordinates'])
+    geom["coordinates"] = fn(geom["coordinates"])
 
 
 @dataclass
@@ -53,6 +53,7 @@ class DatasetGeometry:
     Projection stuff built with help from
     https://github.com/OSGeo/gdal/blob/95e35bd1c40ec6ce33341ed6390cce955048067f/gdal/frmts/netcdf/netcdfdataset.cpp
     """
+
     projection_wkt2: str
     projection_shape: List[int]
     projection_transform: List[float]
@@ -64,12 +65,13 @@ class DatasetGeometry:
     def from_nc(cls, nc: File, image_type: ImageType) -> "DatasetGeometry":
         projection = nc["goes_imager_projection"]
         sweep_angle_axis = projection.attrs["sweep_angle_axis"].decode("utf-8")
-        satellite_height = projection.attrs["perspective_point_height"][
-            0].item()
-        latitude_natural_origin = projection.attrs[
-            "latitude_of_projection_origin"][0].item()
-        longitude_natural_origin = projection.attrs[
-            "longitude_of_projection_origin"][0].item()
+        satellite_height = projection.attrs["perspective_point_height"][0].item()
+        latitude_natural_origin = projection.attrs["latitude_of_projection_origin"][
+            0
+        ].item()
+        longitude_natural_origin = projection.attrs["longitude_of_projection_origin"][
+            0
+        ].item()
         extent = nc["geospatial_lat_lon_extent"]
         xmin = extent.attrs["geospatial_westbound_longitude"][0].item()
         ymin = extent.attrs["geospatial_southbound_latitude"][0].item()
@@ -78,7 +80,8 @@ class DatasetGeometry:
 
         if all(v == -999.0 for v in (xmin, ymin, xmax, ymax)):
             raise GOESMissingExtentError(
-                "All four geospatial extents are -999.0 (missing)")
+                "All four geospatial extents are -999.0 (missing)"
+            )
 
         # If xmin is -999.0, clip as -180
         # This happens when the left side of the shot
@@ -108,36 +111,46 @@ class DatasetGeometry:
 
         datum = CustomDatum(ellipsoid=GOES_ELLIPSOID)
         conversion = GeostationarySatelliteConversion(
-            sweep_angle_axis, satellite_height, latitude_natural_origin,
-            longitude_natural_origin)
-        crs = ProjectedCRS(conversion=conversion,
-                           geodetic_crs=GeographicCRS(datum=datum))
+            sweep_angle_axis,
+            satellite_height,
+            latitude_natural_origin,
+            longitude_natural_origin,
+        )
+        crs = ProjectedCRS(
+            conversion=conversion, geodetic_crs=GeographicCRS(datum=datum)
+        )
 
         projection_wkt2 = crs.to_wkt()
         projection_shape = [rowcount, colcount]
 
-        x_bounds = [(x_scale * x + x_offset) * satellite_height
-                    for x in [x[0], x[-1]]]
-        y_bounds = [(y_scale * y + y_offset) * satellite_height
-                    for y in [y[0], y[-1]]]
+        x_bounds = [(x_scale * x + x_offset) * satellite_height for x in [x[0], x[-1]]]
+        y_bounds = [(y_scale * y + y_offset) * satellite_height for y in [y[0], y[-1]]]
         xres = (x_bounds[1] - x_bounds[0]) / (colcount - 1)
         yres = (y_bounds[1] - y_bounds[0]) / (rowcount - 1)
 
         projection_transform = [
-            xres, 0, x_bounds[0] - xres / 2, 0, yres, y_bounds[0] - yres / 2
+            xres,
+            0,
+            x_bounds[0] - xres / 2,
+            0,
+            yres,
+            y_bounds[0] - yres / 2,
         ]
         projection_bbox = [x_bounds[0], y_bounds[0], x_bounds[1], y_bounds[1]]
 
         use_bbox_geom = image_type == ImageType.FULL_DISK
 
         if not use_bbox_geom:
-            projection_geometry = Polygon([(x_bounds[0], y_bounds[0]),
-                                           (x_bounds[0], y_bounds[1]),
-                                           (x_bounds[1], y_bounds[1]),
-                                           (x_bounds[1], y_bounds[0])])
+            projection_geometry = Polygon(
+                [
+                    (x_bounds[0], y_bounds[0]),
+                    (x_bounds[0], y_bounds[1]),
+                    (x_bounds[1], y_bounds[1]),
+                    (x_bounds[1], y_bounds[0]),
+                ]
+            )
 
-            geometry = reproject_geom(crs, "EPSG:4326",
-                                      mapping(projection_geometry))
+            geometry = reproject_geom(crs, "EPSG:4326", mapping(projection_geometry))
 
             ensure_no_antimeridian_crossing(geometry)
 
@@ -154,12 +167,14 @@ class DatasetGeometry:
 
             ensure_no_antimeridian_crossing(geometry)
 
-        return DatasetGeometry(projection_wkt2=projection_wkt2,
-                               projection_shape=projection_shape,
-                               projection_transform=projection_transform,
-                               projection_bbox=projection_bbox,
-                               bbox=bbox,
-                               footprint=geometry)
+        return DatasetGeometry(
+            projection_wkt2=projection_wkt2,
+            projection_shape=projection_shape,
+            projection_transform=projection_transform,
+            projection_bbox=projection_bbox,
+            bbox=bbox,
+            footprint=geometry,
+        )
 
 
 @dataclass
@@ -181,7 +196,9 @@ class Dataset:
 
         asset_variables = [key for key in nc.keys() if len(nc[key].shape) == 2]
 
-        return Dataset(file_name=file_name,
-                       global_attributes=global_attributes,
-                       geometry=geometry,
-                       asset_variables=asset_variables)
+        return Dataset(
+            file_name=file_name,
+            global_attributes=global_attributes,
+            geometry=geometry,
+            asset_variables=asset_variables,
+        )
