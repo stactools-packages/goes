@@ -5,7 +5,7 @@ from h5py import File
 
 from stactools.goes.enums import ProductionEnvironment
 from stactools.goes.errors import GOESRAttributeError
-from stactools.goes.utils import get_nc_str_attr, get_nc_datetime_attr
+from stactools.goes.utils import get_nc_datetime_attr, get_nc_str_attr
 
 
 @dataclass
@@ -30,16 +30,17 @@ class GlobalAttributes:
         # "Xkm at nadir"
         res_at_nadir = get_nc_str_attr(nc, "spatial_resolution")
         try:
-            spatial_resolution_km = float(
-                res_at_nadir.replace("km at nadir", ""))
+            spatial_resolution_km = float(res_at_nadir.replace("km at nadir", ""))
         except ValueError as e:
             raise GOESRAttributeError(
-                f"Cannot parse spatial_resolution {res_at_nadir}") from e
+                f"Cannot parse spatial_resolution {res_at_nadir}"
+            ) from e
 
-        return GlobalAttributes(title=title,
-                                summary=summary,
-                                production_environment=ProductionEnvironment(
-                                    production_environment),
-                                start_datetime=start_datetime,
-                                end_datetime=end_datetime,
-                                spatial_resolution_km=spatial_resolution_km)
+        return GlobalAttributes(
+            title=title,
+            summary=summary,
+            production_environment=ProductionEnvironment(production_environment),
+            start_datetime=start_datetime,
+            end_datetime=end_datetime,
+            spatial_resolution_km=spatial_resolution_km,
+        )

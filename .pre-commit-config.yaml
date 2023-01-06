@@ -23,6 +23,8 @@ repos:
         additional_dependencies:
           - click != 8.1.0
           - stactools
+          - types-python-dateutil
+          - types-requests
   - repo: https://github.com/pycqa/isort
     rev: 5.10.1
     hooks:

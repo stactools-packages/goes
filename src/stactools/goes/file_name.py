@@ -5,30 +5,36 @@ See APPENDIX A on page marked 608
 """
 
 import os
-from datetime import datetime as Datetime
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
+from datetime import datetime as Datetime
 from typing import Optional
 
-from stactools.core.utils import map_opt
-from stactools.goes.enums import (ImageType, MesoscaleImageNumber, Mode,
-                                  PlatformId, ProductAcronym,
-                                  SystemEnvironment)
+from pystac.utils import map_opt
 
+from stactools.goes.enums import (
+    ImageType,
+    MesoscaleImageNumber,
+    Mode,
+    PlatformId,
+    ProductAcronym,
+    SystemEnvironment,
+)
 from stactools.goes.errors import GOESRFileNameError
 from stactools.goes.utils import goes_time_to_datetime
 
 FILE_NAME_REGEX = re.compile(
     f'(?P<system>{"|".join([e.value for e in SystemEnvironment])})_'
-    r'ABI-L2-'
+    r"ABI-L2-"
     f'(?P<product>{"|".join([e.value for e in ProductAcronym])})'
-    r'(?P<image_type>\w)(?P<mesoscale_number>\d)?-'
-    r'M(?P<mode>\d+?)C?(?P<channel>\d*)_'
-    r'(?P<platform>G\d+)_'
-    r'(?P<cyclone_id>\w\w\d\d\d\d\d\d)?_?'
-    r's(?P<start_time>\d+)_'
-    r'e(?P<end_time>\d+)_'
-    r'c(?P<created_time>\d+)\.nc')
+    r"(?P<image_type>\w)(?P<mesoscale_number>\d)?-"
+    r"M(?P<mode>\d+?)C?(?P<channel>\d*)_"
+    r"(?P<platform>G\d+)_"
+    r"(?P<cyclone_id>\w\w\d\d\d\d\d\d)?_?"
+    r"s(?P<start_time>\d+)_"
+    r"e(?P<end_time>\d+)_"
+    r"c(?P<created_time>\d+)\.nc"
+)
 
 
 @dataclass
@@ -49,22 +55,26 @@ class ABIL2FileName:
         return self.to_str()
 
     def to_str(self) -> str:
-        mesoscale_number_part = f'{self.mesoscale_number.value}' if self.mesoscale_number else ''
-        channel_part = f'C{self.channel:0>2d}' if self.channel else ''
-        cyclone_id_part = f'{self.cyclone_id}_' if self.cyclone_id else ''
-        return (f'{self.system.value}_'
-                'ABI-L2-'
-                f'{self.product.value}{self.image_type.value}'
-                f'{mesoscale_number_part}'
-                '-'
-                f'M{self.mode.value}'
-                f'{channel_part}'
-                '_'
-                f'{self.platform.value}_'
-                f'{cyclone_id_part}'
-                f's{self.start_time}_'
-                f'e{self.end_time}_'
-                f'c{self.created_time}.nc')
+        mesoscale_number_part = (
+            f"{self.mesoscale_number.value}" if self.mesoscale_number else ""
+        )
+        channel_part = f"C{self.channel:0>2d}" if self.channel else ""
+        cyclone_id_part = f"{self.cyclone_id}_" if self.cyclone_id else ""
+        return (
+            f"{self.system.value}_"
+            "ABI-L2-"
+            f"{self.product.value}{self.image_type.value}"
+            f"{mesoscale_number_part}"
+            "-"
+            f"M{self.mode.value}"
+            f"{channel_part}"
+            "_"
+            f"{self.platform.value}_"
+            f"{cyclone_id_part}"
+            f"s{self.start_time}_"
+            f"e{self.end_time}_"
+            f"c{self.created_time}.nc"
+        )
 
     @classmethod
     def from_str(cls, file_name: str) -> "ABIL2FileName":
@@ -80,14 +90,16 @@ class ABIL2FileName:
                 channel = int(m.group("channel"))
             except (ValueError, TypeError) as e:
                 raise GOESRFileNameError(
-                    f"Invalid channel: {m.group('channel')}") from e
+                    f"Invalid channel: {m.group('channel')}"
+                ) from e
 
         return cls(
             system=SystemEnvironment(m.group("system")),
             product=ProductAcronym(m.group("product")),
             image_type=ImageType(m.group("image_type")),
-            mesoscale_number=map_opt(lambda x: MesoscaleImageNumber(x),
-                                     m.group("mesoscale_number") or None),
+            mesoscale_number=map_opt(
+                lambda x: MesoscaleImageNumber(x), m.group("mesoscale_number") or None
+            ),
             mode=Mode(m.group("mode")),
             channel=channel,
             platform=PlatformId(m.group("platform")),
@@ -110,8 +122,7 @@ class ABIL2FileName:
         try:
             return cls.from_str(fname)
         except GOESRFileNameError as e:
-            raise GOESRFileNameError(
-                f"{href} is not a valid Goes COG file name") from e
+            raise GOESRFileNameError(f"{href} is not a valid Goes COG file name") from e
 
     @classmethod
     def product_from_href(cls, href: str) -> "ProductAcronym":
@@ -119,38 +130,45 @@ class ABIL2FileName:
         return file_name.product
 
     def get_product_file_prefix(self, product: ProductAcronym) -> str:
-        mesoscale_number_part = f'{self.mesoscale_number.value}' if self.mesoscale_number else ''
-        return (f'{self.system.value}_'
-                'ABI-L2-'
-                f'{product.value}'
-                f'{self.image_type.value}'
-                f'{mesoscale_number_part}'
-                '-'
-                f'M{self.mode.value}'
-                '_'
-                f'{self.platform.value}_'
-                f's{self.start_time}_')
+        mesoscale_number_part = (
+            f"{self.mesoscale_number.value}" if self.mesoscale_number else ""
+        )
+        return (
+            f"{self.system.value}_"
+            "ABI-L2-"
+            f"{product.value}"
+            f"{self.image_type.value}"
+            f"{mesoscale_number_part}"
+            "-"
+            f"M{self.mode.value}"
+            "_"
+            f"{self.platform.value}_"
+            f"s{self.start_time}_"
+        )
 
-    def get_channel_file_prefix(self, product: ProductAcronym,
-                                channel: int) -> str:
+    def get_channel_file_prefix(self, product: ProductAcronym, channel: int) -> str:
         if product != ProductAcronym.CMIP and product != ProductAcronym.DMW:
             raise GOESRFileNameError(
                 f"Channel path not valid for {product.value}, "
                 f"only valid for {ProductAcronym.CMIP.value} and {ProductAcronym.DMW.value}"
             )
 
-        mesoscale_number_part = f'{self.mesoscale_number.value}' if self.mesoscale_number else ''
-        return (f'{self.system.value}_'
-                'ABI-L2-'
-                f'{product.value}'
-                f'{self.image_type.value}'
-                f'{mesoscale_number_part}'
-                '-'
-                f'M{self.mode.value}'
-                f'C{channel:0>2d}'
-                '_'
-                f'{self.platform.value}_'
-                f's{self.start_time}_')
+        mesoscale_number_part = (
+            f"{self.mesoscale_number.value}" if self.mesoscale_number else ""
+        )
+        return (
+            f"{self.system.value}_"
+            "ABI-L2-"
+            f"{product.value}"
+            f"{self.image_type.value}"
+            f"{mesoscale_number_part}"
+            "-"
+            f"M{self.mode.value}"
+            f"C{channel:0>2d}"
+            "_"
+            f"{self.platform.value}_"
+            f"s{self.start_time}_"
+        )
 
     def get_cog_file_name(self, variable: str) -> str:
         """Returns a COG filename for the given nc dataset variable"""
@@ -160,16 +178,20 @@ class ABIL2FileName:
         return f"{base_name}_{variable}.tif"
 
     def get_item_id(self) -> str:
-        mesoscale_number_part = f'{self.mesoscale_number.value}' if self.mesoscale_number else ''
-        return (f'{self.system.value}_'
-                'ABI-L2-'
-                f'{self.image_type.value}'
-                f'{mesoscale_number_part}'
-                '-'
-                f'M{self.mode.value}'
-                '_'
-                f'{self.platform.value}_'
-                f's{self.start_time}')
+        mesoscale_number_part = (
+            f"{self.mesoscale_number.value}" if self.mesoscale_number else ""
+        )
+        return (
+            f"{self.system.value}_"
+            "ABI-L2-"
+            f"{self.image_type.value}"
+            f"{mesoscale_number_part}"
+            "-"
+            f"M{self.mode.value}"
+            "_"
+            f"{self.platform.value}_"
+            f"s{self.start_time}"
+        )
 
     @property
     def start_datetime(self) -> Datetime:
