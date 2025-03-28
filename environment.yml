@@ -4,6 +4,7 @@ channels:
   - defaults
 dependencies:
   - gdal
+  - libgdal-netcdf
   - stactools
   - h5py
   - netcdf4

@@ -65,6 +65,10 @@ def cogify(
                 args.append("gdal_translate")
             args.extend(
                 [
+                    # If the HDF5 driver is installed, GDAL will try to use it.
+                    # https://gdal.org/en/stable/drivers/raster/netcdf.html
+                    "-if",
+                    "netCDF",
                     "-of",
                     "COG",
                     "-co",
@@ -76,6 +80,12 @@ def cogify(
             args.extend([infile, outfile])
 
             logger.info(f"Running {args}")
+            # Since GOES is a geostationary satellite, some of the full disk
+            # images contain "space" pixels.
+            # https://gdal.org/en/stable/user/configoptions.html#proj-options
+            # For some reason, this _MUST_ be set as an environment variable.
+            # If you try to pass it as a CLI config option, it doesn't work.
+            os.environ["OGR_ENABLE_PARTIAL_REPROJECTION"] = "TRUE"
             result = subprocess.run(args, capture_output=True)
             logger.info(result.stdout.decode("utf-8").strip())
             if result.returncode != 0:
