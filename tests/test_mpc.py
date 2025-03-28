@@ -88,9 +88,9 @@ class MicrosoftPCData:
                             f"based on {self.reference_nc_href}: "
                             f"{','.join(blobs)}"
                         )
-                    self.nc_urls[
-                        (product, channel)
-                    ] = f"{GOES_ACCOUNT_URL}/{self.nc_container}/{blobs[0]}"
+                    self.nc_urls[(product, channel)] = (
+                        f"{GOES_ACCOUNT_URL}/{self.nc_container}/{blobs[0]}"
+                    )
 
         return self.nc_urls[(product, channel)]
 
