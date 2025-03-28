@@ -19,11 +19,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up Conda with Python ${{ matrix.python-version }}
-        uses: mamba-org/provision-with-micromamba@main
+        uses: mamba-org/setup-micromamba@main
         with:
           environment-file: environment.yml
           environment-name: stactools-goes
-          extra-specs: |
+          create-args: >-
             python=${{ matrix.python-version }}
 
       - name: Execute linters and test suites
