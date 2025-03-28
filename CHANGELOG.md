@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- GOES-19 support ()
+- GOES-19 support ([#36](https://github.com/stactools-packages/goes/pull/36))
 
 ## [0.1.7] - 2023-01-06
 
