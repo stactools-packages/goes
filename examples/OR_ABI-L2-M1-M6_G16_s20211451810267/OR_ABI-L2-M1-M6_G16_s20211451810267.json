@@ -1,7 +1,46 @@
 {
   "type": "Feature",
-  "stac_version": "1.0.0",
+  "stac_version": "1.1.0",
+  "stac_extensions": [
+    "https://stac-extensions.github.io/processing/v1.0.0/schema.json",
+    "https://stac-extensions.github.io/projection/v2.0.0/schema.json",
+    "https://stac-extensions.github.io/eo/v1.1.0/schema.json",
+    "https://stac-extensions.github.io/raster/v1.1.0/schema.json"
+  ],
   "id": "OR_ABI-L2-M1-M6_G16_s20211451810267",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -110.39692218041962,
+          41.65877462619304
+        ],
+        [
+          -103.66560204164364,
+          28.788225233345276
+        ],
+        [
+          -91.70173292267447,
+          28.39260609137167
+        ],
+        [
+          -95.01285094441897,
+          40.79704959396944
+        ],
+        [
+          -110.39692218041962,
+          41.65877462619304
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    -110.41133117675781,
+    28.386886596679688,
+    -91.69505310058594,
+    41.6668815612793
+  ],
   "properties": {
     "platform": "GOES-16",
     "instruments": [
@@ -15,7 +54,7 @@
     "goes:mode": "6",
     "goes:processing-level": "L2",
     "goes:mesoscale-image-number": 1,
-    "proj:epsg": null,
+    "proj:code": null,
     "proj:wkt2": "PROJCRS[\"undefined\",BASEGEOGCRS[\"undefined\",DATUM[\"undefined\",ELLIPSOID[\"GRS 1980(IUGG, 1980)\",6378137,298.257222101,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8901]]],CONVERSION[\"unknown\",METHOD[\"Geostationary Satellite (Sweep X)\"],PARAMETER[\"Satellite height\",35786023,LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",-75,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"(E)\",east,ORDER[1],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]],AXIS[\"(N)\",north,ORDER[2],LENGTHUNIT[\"metre\",1,ID[\"EPSG\",9001]]]]",
     "proj:shape": [
       1000,
@@ -36,33 +75,6 @@
       2926366.2905062526
     ],
     "datetime": "2021-05-25T18:10:26.700000Z"
-  },
-  "geometry": {
-    "type": "Polygon",
-    "coordinates": [
-      [
-        [
-          -110.39692218041962,
-          41.65877462619304
-        ],
-        [
-          -103.66560204164362,
-          28.788225233345255
-        ],
-        [
-          -91.70173292267445,
-          28.392606091371643
-        ],
-        [
-          -95.01285094441894,
-          40.79704959396939
-        ],
-        [
-          -110.39692218041962,
-          41.65877462619304
-        ]
-      ]
-    ]
   },
   "links": [
     {
@@ -146,17 +158,5 @@
       ]
     }
   },
-  "bbox": [
-    -110.41133117675781,
-    28.386886596679688,
-    -91.69505310058594,
-    41.6668815612793
-  ],
-  "stac_extensions": [
-    "https://stac-extensions.github.io/processing/v1.0.0/schema.json",
-    "https://stac-extensions.github.io/projection/v1.0.0/schema.json",
-    "https://stac-extensions.github.io/eo/v1.0.0/schema.json",
-    "https://stac-extensions.github.io/raster/v1.1.0/schema.json"
-  ],
   "collection": "goes-cmi"
 }
