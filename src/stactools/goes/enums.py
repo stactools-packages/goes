@@ -5,6 +5,7 @@ class PlatformId(Enum):
     G16 = "G16"
     G17 = "G17"
     G18 = "G18"
+    G19 = "G19"
 
     @staticmethod
     def to_stac_value(v: "PlatformId") -> str:
@@ -14,6 +15,8 @@ class PlatformId(Enum):
             return "GOES-17"
         elif v == PlatformId.G18:
             return "GOES-18"
+        elif v == PlatformId.G19:
+            return "GOES-19"
         else:
             return v.value
 

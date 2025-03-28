@@ -54,6 +54,9 @@ PC_RRQPE_F = (
     "OR_ABI-L2-RRQPEF-M6_G17_s20210040310320_e20210040319387_c20210040319489.nc"
 )
 PC_SST_F = "OR_ABI-L2-SSTF-M6_G17_s20193550800326_e20193550859393_c20193550904140.nc"
+PC_GOES_19 = (
+    "OR_ABI-L2-AICEF-M6_G19_s20250511800210_e20250511809518_c20250511813114.nc"
+)
 INVALID_LAT_LNG = (
     "OR_ABI-L2-MCMIPM2-M6_G17_s20212742248555_e20212742248555_c20212742249339.nc"
 )
@@ -213,6 +216,14 @@ EXTERNAL_DATA = {
             "https://goeseuwest.blob.core.windows.net/noaa-goes17/"
             "ABI-L2-SSTF/2019/355/08/"
             "OR_ABI-L2-SSTF-M6_G17_s20193550800326_e20193550859393_c20193550904140.nc"
+        ),
+        "planetary_computer": True,
+    },
+    PC_GOES_19: {
+        "url": (
+            "https://goeseuwest.blob.core.windows.net/noaa-goes19/"
+            "ABI-L2-AICEF/2025/051/18/"
+            "OR_ABI-L2-AICEF-M6_G19_s20250511800210_e20250511809518_c20250511813114.nc"
         ),
         "planetary_computer": True,
     },
