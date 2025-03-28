@@ -1,5 +1,6 @@
 import logging
 import sys
+from typing import Any
 
 from stactools.testing import TestData
 
@@ -61,7 +62,7 @@ INVALID_LAT_LNG = (
     "OR_ABI-L2-MCMIPM2-M6_G17_s20212742248555_e20212742248555_c20212742249339.nc"
 )
 
-EXTERNAL_DATA = {
+EXTERNAL_DATA: dict[str, dict[str, Any]] = {
     CMIP_FILE_NAME: {
         "url": (
             "https://noaa-goes16.s3.amazonaws.com/ABI-L2-CMIPM/2021/123/16"
@@ -237,7 +238,7 @@ EXTERNAL_DATA = {
     },
 }
 
-test_data = TestData(__file__, EXTERNAL_DATA)
+test_data = TestData(__file__, EXTERNAL_DATA)  # type: ignore
 
 
 class TestLogging:
