@@ -229,7 +229,7 @@ def create_item(
 
                 def get_cog_metadata() -> None:
                     with rasterio.open(_rhm(cog_href)) as ds:
-                        # Set tansform and shape if needed
+                        # Set transform and shape if needed
                         if not projection.shape or ds.shape[0] != projection.shape[0]:
                             ProjectionExtension.ext(asset).shape = list(ds.shape)
                             ProjectionExtension.ext(asset).transform = list(

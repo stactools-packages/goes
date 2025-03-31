@@ -242,7 +242,7 @@ class CreateItemFromHrefTest(unittest.TestCase):
 
 
 class CreateItemTest(unittest.TestCase):
-    def test_validate_product_hrefs(self):
+    def test_validate_product_hrefs(self) -> None:
         product_hrefs: List[ProductHrefs] = []
 
         mcmip_path = test_data.get_external_data(PC_MCMIP_F)
@@ -263,7 +263,7 @@ class CreateItemTest(unittest.TestCase):
         with self.assertRaises(GOESRProductHrefsError):
             _ = stac.create_item(product_hrefs)
 
-    def test_combined_item(self):
+    def test_combined_item(self) -> None:
         product_hrefs: List[ProductHrefs] = []
 
         mcmip_href = EXTERNAL_DATA[PC_MCMIP_C]["url"]

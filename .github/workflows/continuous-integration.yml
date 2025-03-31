@@ -12,18 +12,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.10", "3.11", "3.12"]
     defaults:
       run:
         shell: bash -l {0}
     steps:
       - uses: actions/checkout@v2
       - name: Set up Conda with Python ${{ matrix.python-version }}
-        uses: mamba-org/provision-with-micromamba@main
+        uses: mamba-org/setup-micromamba@main
         with:
           environment-file: environment.yml
           environment-name: stactools-goes
-          extra-specs: |
+          create-args: >-
             python=${{ matrix.python-version }}
 
       - name: Execute linters and test suites

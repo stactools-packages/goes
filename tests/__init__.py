@@ -1,5 +1,6 @@
 import logging
 import sys
+from typing import Any
 
 from stactools.testing import TestData
 
@@ -54,11 +55,15 @@ PC_RRQPE_F = (
     "OR_ABI-L2-RRQPEF-M6_G17_s20210040310320_e20210040319387_c20210040319489.nc"
 )
 PC_SST_F = "OR_ABI-L2-SSTF-M6_G17_s20193550800326_e20193550859393_c20193550904140.nc"
+PC_GOES_19 = "OR_ABI-L2-SSTF-M6_G19_s20250741200209_e20250741259517_c20250741305132.nc"
+PC_GOES_19_CMIP = (
+    "OR_ABI-L2-CMIPM1-M6C01_G19_s20250070100281_e20250070100339_c20250070100392.nc"
+)
 INVALID_LAT_LNG = (
     "OR_ABI-L2-MCMIPM2-M6_G17_s20212742248555_e20212742248555_c20212742249339.nc"
 )
 
-EXTERNAL_DATA = {
+EXTERNAL_DATA: dict[str, dict[str, Any]] = {
     CMIP_FILE_NAME: {
         "url": (
             "https://noaa-goes16.s3.amazonaws.com/ABI-L2-CMIPM/2021/123/16"
@@ -216,6 +221,22 @@ EXTERNAL_DATA = {
         ),
         "planetary_computer": True,
     },
+    PC_GOES_19: {
+        "url": (
+            "https://goeseuwest.blob.core.windows.net/noaa-goes19/"
+            "ABI-L2-SSTF/2025/074/12/"
+            "OR_ABI-L2-SSTF-M6_G19_s20250741200209_e20250741259517_c20250741305132.nc"
+        ),
+        "planetary_computer": True,
+    },
+    PC_GOES_19_CMIP: {
+        "url": (
+            "https://goeseuwest.blob.core.windows.net/noaa-goes19/"
+            "ABI-L2-CMIPM/2025/007/01/"
+            "OR_ABI-L2-CMIPM1-M6C01_G19_s20250070100281_e20250070100339_c20250070100392.nc"
+        ),
+        "planetary_computer": True,
+    },
     INVALID_LAT_LNG: {
         "url": (
             "https://goeseuwest.blob.core.windows.net/noaa-goes17/"
@@ -226,7 +247,7 @@ EXTERNAL_DATA = {
     },
 }
 
-test_data = TestData(__file__, EXTERNAL_DATA)
+test_data = TestData(__file__, EXTERNAL_DATA)  # type: ignore
 
 
 class TestLogging:

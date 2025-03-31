@@ -1,7 +1,7 @@
 {
   "type": "Collection",
   "id": "goes-cmi",
-  "stac_version": "1.0.0",
+  "stac_version": "1.1.0",
   "description": "An example collection for GOES CMI data",
   "links": [
     {
@@ -12,40 +12,44 @@
     {
       "rel": "item",
       "href": "./OR_ABI-L2-M1-M6_G16_s20211231619248/OR_ABI-L2-M1-M6_G16_s20211231619248.json",
-      "type": "application/json"
+      "type": "application/geo+json"
+    },
+    {
+      "rel": "item",
+      "href": "./OR_ABI-L2-M1-M6_G19_s20250070100281/OR_ABI-L2-M1-M6_G19_s20250070100281.json",
+      "type": "application/geo+json"
     },
     {
       "rel": "item",
       "href": "./OR_ABI-L2-M1-M6_G16_s20211451800267/OR_ABI-L2-M1-M6_G16_s20211451800267.json",
-      "type": "application/json"
+      "type": "application/geo+json"
     },
     {
       "rel": "item",
       "href": "./OR_ABI-L2-M1-M6_G17_s20200111504255/OR_ABI-L2-M1-M6_G17_s20200111504255.json",
-      "type": "application/json"
+      "type": "application/geo+json"
     },
     {
       "rel": "item",
       "href": "./OR_ABI-L2-M1-M6_G16_s20211451810267/OR_ABI-L2-M1-M6_G16_s20211451810267.json",
-      "type": "application/json"
+      "type": "application/geo+json"
     },
     {
       "rel": "item",
       "href": "./OR_ABI-L2-M1-M6_G16_s20211451816238/OR_ABI-L2-M1-M6_G16_s20211451816238.json",
-      "type": "application/json"
+      "type": "application/geo+json"
     },
     {
       "rel": "item",
       "href": "./OR_ABI-L2-F-M6_G16_s20210201540193/OR_ABI-L2-F-M6_G16_s20210201540193.json",
-      "type": "application/json"
+      "type": "application/geo+json"
     },
     {
       "rel": "item",
       "href": "./OR_ABI-L2-M1-M6_G16_s20211451811238/OR_ABI-L2-M1-M6_G16_s20211451811238.json",
-      "type": "application/json"
+      "type": "application/geo+json"
     }
   ],
-  "stac_extensions": [],
   "extent": {
     "spatial": {
       "bbox": [
@@ -61,15 +65,16 @@
       "interval": [
         [
           "2020-01-11T15:04:25.500000Z",
-          "2021-05-25T18:16:23.800000Z"
+          "2025-01-07T01:00:28.100000Z"
         ]
       ]
     }
   },
-  "license": "proprietary",
+  "license": "other",
   "summaries": {
     "platform": [
       "GOES-16",
+      "GOES-19",
       "GOES-17"
     ],
     "instruments": [
@@ -78,7 +83,7 @@
     "goes:mode": [
       "6"
     ],
-    "proj:epsg": [
+    "proj:code": [
       null
     ]
   }

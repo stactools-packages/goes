@@ -148,6 +148,43 @@ TEST_CASES = [
             created_time="20222090009581",
         ),
     ),
+    # GOES-19
+    TestCase(
+        file_name=(
+            "OR_ABI-L2-CMIPM1-M6C01_G19_s20250010000280_e20250010000338_c20250010000394.nc"
+        ),
+        expected_result=ABIL2FileName(
+            system=SystemEnvironment.OR,
+            product=ProductAcronym.CMIP,
+            image_type=ImageType.MESOSCALE,
+            mesoscale_number=MesoscaleImageNumber.ONE,
+            mode=Mode.SIX,
+            channel=1,
+            platform=PlatformId.G19,
+            cyclone_id=None,
+            start_time="20250010000280",
+            end_time="20250010000338",
+            created_time="20250010000394",
+        ),
+    ),
+    TestCase(
+        file_name=(
+            "OR_ABI-L2-MCMIPF-M6_G19_s20250010000205_e20250010009519_c20250010010005.nc"
+        ),
+        expected_result=ABIL2FileName(
+            system=SystemEnvironment.OR,
+            product=ProductAcronym.MCMIP,
+            image_type=ImageType.FULL_DISK,
+            mesoscale_number=None,
+            mode=Mode.SIX,
+            channel=None,
+            platform=PlatformId.G19,
+            cyclone_id=None,
+            start_time="20250010000205",
+            end_time="20250010009519",
+            created_time="20250010010005",
+        ),
+    ),
 ]
 
 

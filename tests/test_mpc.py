@@ -88,9 +88,9 @@ class MicrosoftPCData:
                             f"based on {self.reference_nc_href}: "
                             f"{','.join(blobs)}"
                         )
-                    self.nc_urls[
-                        (product, channel)
-                    ] = f"{GOES_ACCOUNT_URL}/{self.nc_container}/{blobs[0]}"
+                    self.nc_urls[(product, channel)] = (
+                        f"{GOES_ACCOUNT_URL}/{self.nc_container}/{blobs[0]}"
+                    )
 
         return self.nc_urls[(product, channel)]
 
@@ -104,6 +104,10 @@ class MicrosoftPCData:
         path_parts = [GOES_ACCOUNT_URL, GOES_COG_CONTAINER]
         if nc_file_name.platform == PlatformId.G17:
             path_parts.append("goes-17")
+        elif nc_file_name.platform == PlatformId.G18:
+            path_parts.append("goes-18")
+        elif nc_file_name.platform == PlatformId.G19:
+            path_parts.append("goes-19")
         else:
             path_parts.append("goes-16")
         path_parts.append(self._get_product_folder(product))
