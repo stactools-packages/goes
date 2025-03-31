@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.1.8] - 2025-03-31
+
 ### Added
 
 - GOES-19 support ([#36](https://github.com/stactools-packages/goes/pull/36))
@@ -107,7 +109,8 @@ Initial release.
 
 - Nothing.
 
-[Unreleased]: <https://github.com/stactools-packages/goes/compare/v0.1.7...main>
+[Unreleased]: <https://github.com/stactools-packages/goes/compare/v0.1.8...main>
+[0.1.8]: <https://github.com/stactools-packages/goes/compare/v0.1.7...v0.1.8>
 [0.1.7]: <https://github.com/stactools-packages/goes/compare/v0.1.6...v0.1.7>
 [0.1.6]: <https://github.com/stactools-packages/goes/compare/v0.1.5...v0.1.6>
 [0.1.5]: <https://github.com/stactools-packages/goes/compare/v0.1.4...v0.1.5>
